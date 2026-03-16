@@ -4,6 +4,7 @@ It allows patients to discover verified hospitals, book appointments, communicat
 Hospitals can register, verify their profile, manage appointments, respond to patient queries, and interact with patients through a centralized dashboard.
 
 🚀 Key Features
+
 👩‍⚕️ Patient Features
 •	🔍 Discover verified hospitals
 •	📅 Instant appointment booking
