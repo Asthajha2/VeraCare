@@ -1,0 +1,3049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veracare</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif
+}
+:root{
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --secondary:#10b981;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --dark:#1e293b;
+  --gray:#64748b;
+  --gray-light:#e2e8f0;
+  --success:#059669;
+  --patient:#8b5cf6;
+}
+body{
+  background:#f1f5f9;
+  color:var(--dark);
+  line-height:1.6;
+  min-height:100vh
+}
+.container{
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 20px
+}
+.hidden{
+  display:none!important
+}
+#toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:99999;
+  background:var(--dark);
+  color:#fff;
+  padding:14px 20px;
+  border-radius:10px;
+  font-size:.95rem;
+  font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+  opacity:0;
+  transform:translateY(-10px);
+  transition:all .3s;
+  pointer-events:none;
+}
+#toast.show{
+  opacity:1;
+  transform:translateY(0)
+}
+#toast.success{
+  background:var(--success)
+}
+#toast.error{
+  background:var(--danger)
+}
+#toast.info{
+  background:var(--primary)
+}
+#spinner{
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,.8);
+  z-index:99998;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.spin{
+  width:48px;
+  height:48px;
+  border:5px solid var(--gray-light);
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:sp .8s linear infinite;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+header{
+  background:#fff;
+  box-shadow:0 2px 10px rgba(0,0,0,.1);
+  position:sticky;
+  top:0;
+  z-index:100
+}
+.hdr{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 0
+}
+.logo{
+  font-size:1.8rem;
+  font-weight:700;
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+.logo i{
+  color:var(--danger)
+}
+nav ul{
+  display:flex;
+  list-style:none;
+  gap:20px;
+  align-items:center
+}
+.user-profile{
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+.profile-circle{
+  width:40px;
+  height:40px;
+  background:var(--primary);
+  color:#fff;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:1.1rem
+}
+.btn{
+  padding:12px 24px;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  border:none;
+  transition:all .3s;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  text-decoration:none;
+  font-size:.95rem
+}
+.btn-primary{
+  background:var(--primary);
+  color:#fff
+}
+.btn-primary:hover{
+  background:var(--primary-dark)
+}
+.btn-secondary{
+  background:var(--secondary);
+  color:#fff
+}
+.btn-secondary:hover{
+  background:#0da271
+}
+.btn-danger{
+  background:var(--danger);
+  color:#fff
+}
+.btn-danger:hover{
+  background:#dc2626
+}
+.btn-warning{
+  background:var(--warning);
+  color:#fff
+}
+.btn-outline{
+  background:transparent;
+  border:2px solid var(--primary);
+  color:var(--primary)
+}
+.btn-outline:hover{
+  background:var(--primary);
+  color:#fff
+}
+.btn-sm{padding:8px 16px;font-size:.85rem}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;margin-bottom:8px;font-weight:600}
+.form-control{width:100%;padding:14px;border:2px solid var(--gray-light);border-radius:8px;font-size:1rem;transition:border-color .3s;background:#fff}
+.form-control:focus{outline:none;border-color:var(--primary)}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,.05);margin-bottom:24px}
+.auth-wrap{display:flex;min-height:calc(100vh - 80px);align-items:center;justify-content:center;padding:40px 0}
+.auth-card{width:100%;max-width:460px;background:#fff;border-radius:16px;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+.auth-tabs{display:flex;margin-bottom:30px;border-bottom:2px solid var(--gray-light)}
+.auth-tab{flex:1;padding:15px;text-align:center;font-weight:600;cursor:pointer;color:var(--gray);border-bottom:3px solid transparent;transition:all .3s}
+.auth-tab.active{color:var(--primary);border-bottom:3px solid var(--primary)}
+.auth-form{display:none}.auth-form.active{display:block}
+.dash-wrap{padding:30px 0 90px}
+.page-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.page-hdr h1{font-size:1.8rem}
+.dash-content{display:none}.dash-content.active{display:block}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.1);z-index:100;padding:8px 0}
+.bnav-list{display:flex;justify-content:space-around;list-style:none;max-width:1200px;margin:0 auto;padding:0 20px}
+.bnav-item{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--gray);padding:8px 12px;border-radius:8px;transition:all .3s;flex:1;max-width:110px;cursor:pointer;background:none;border:none}
+.bnav-item:hover,.bnav-item.active{color:var(--primary);background:#f0f9ff}
+.bnav-icon{font-size:1.4rem;margin-bottom:4px}
+.bnav-text{font-size:.75rem;font-weight:500}
+.hosp-grid{display:flex;flex-direction:column;gap:16px}
+.hosp-card{background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 4px 12px rgba(0,0,0,.05);transition:transform .2s,box-shadow .2s;display:flex;flex-direction:row;align-items:flex-start;gap:20px;border-left:5px solid var(--primary)}
+.hosp-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.hosp-card-avatar{width:52px;height:52px;background:var(--primary);color:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.hosp-card-body{flex:1;min-width:0}
+.hosp-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.hosp-card-meta{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.hosp-card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-light)}
+.hosp-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.verified-badge{background:var(--success);color:#fff;padding:4px 10px;border-radius:20px;font-size:.78rem;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.info-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;color:var(--gray);font-size:.9rem}
+.info-row i{margin-top:3px;color:var(--primary);width:14px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.cal-wrap{width:300px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.05);flex-shrink:0}
+.cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.cal-day{padding:8px 4px;text-align:center;border-radius:6px;cursor:pointer;font-size:.85rem}
+.cal-day:hover{background:#f0f9ff}
+.cal-day.today{background:var(--primary);color:#fff}
+.cal-day.selected{background:var(--primary-dark);color:#fff}
+.cal-day.empty{cursor:default}
+.time-slots{display:flex;flex-wrap:wrap;gap:8px}
+.time-slot{padding:8px 12px;background:#f1f5f9;border-radius:8px;cursor:pointer;font-size:.85rem;border:2px solid transparent}
+.time-slot:hover{border-color:var(--primary);color:var(--primary)}
+.time-slot.selected{background:var(--primary);color:#fff;border-color:var(--primary)}
+.booking-layout{display:flex;gap:24px;flex-wrap:wrap}
+.booking-form{flex:1;min-width:280px}
+.chat-wrap{display:flex;height:580px;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.chat-sidebar{width:280px;background:#fff;border-right:1px solid var(--gray-light);overflow-y:auto;flex-shrink:0}
+.chat-main{flex:1;display:flex;flex-direction:column;background:#fff;min-width:0}
+.chat-item{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--gray-light)}
+.chat-item:hover,.chat-item.active{background:#f0f9ff}
+.chat-hdr{padding:16px;border-bottom:1px solid var(--gray-light);display:flex;align-items:center;gap:12px}
+.chat-msgs{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:70%;padding:12px 16px;border-radius:12px;font-size:.9rem}
+.msg.sent{align-self:flex-end;background:#dbeafe;border-bottom-right-radius:4px}
+.msg.recv{align-self:flex-start;background:#f1f5f9;border-bottom-left-radius:4px}
+.msg-time{font-size:.75rem;color:var(--gray);margin-top:4px;text-align:right}
+.chat-input-row{padding:14px 16px;border-top:1px solid var(--gray-light);display:flex;gap:10px}
+.chat-input-row input{flex:1;padding:12px;border:2px solid var(--gray-light);border-radius:8px;font-size:.9rem}
+.chat-input-row input:focus{outline:none;border-color:var(--primary)}
+.avatar{width:40px;height:40px;background:var(--patient);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0}
+.query-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 4px 8px rgba(0,0,0,.05);margin-bottom:16px}
+.query-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.reply-box{margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-light);display:none}
+.reply-box.open{display:block}
+.vsteps{display:flex;gap:20px;margin-bottom:32px;flex-wrap:wrap}
+.vstep{flex:1;min-width:160px;text-align:center;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 8px rgba(0,0,0,.05)}
+.vstep-num{width:40px;height:40px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 12px}
+.profile-photo{width:100px;height:100px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:700;flex-shrink:0}
+.profile-section{display:flex;align-items:center;gap:24px;margin-bottom:28px;flex-wrap:wrap}
+.status{padding:5px 12px;border-radius:20px;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+.status.verified{background:rgba(5,150,105,.1);color:var(--success)}
+.status.pending{background:rgba(245,158,11,.1);color:var(--warning)}
+.status.rejected{background:rgba(239,68,68,.1);color:var(--danger)}
+.status.confirmed{background:rgba(5,150,105,.1);color:var(--success)}
+.status.completed{background:rgba(37,99,235,.1);color:var(--primary)}
+.search-box{position:relative;max-width:400px}
+.search-box input{width:100%;padding:12px 12px 12px 40px;border:2px solid var(--gray-light);border-radius:8px;font-size:.95rem}
+.search-box input:focus{outline:none;border-color:var(--primary)}
+.search-box i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--gray)}
+.med-card{background:#fff;border-radius:24px;box-shadow:0 8px 24px rgba(0,40,70,.1);overflow:hidden;border:1px solid #c2dae9;max-width:750px}
+.med-hdr{padding:16px 20px;background:#f9fcff;border-bottom:1px solid #c2dae9;display:flex;align-items:center;gap:12px}
+.med-brand{background:#0b3b5c;width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;flex-shrink:0}
+.med-msgs{background:#f9fcff;padding:20px;min-height:320px;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.med-bubble{padding:12px 16px;border-radius:24px;font-size:.9rem;background:#fff;border:1px solid #e2ecf5;border-bottom-left-radius:4px;color:#153e5a;max-width:78%;align-self:flex-start;word-wrap:break-word}
+.med-bubble.user{background:#0b3b5c;color:#fff;border-bottom-left-radius:24px;border-bottom-right-radius:4px;align-self:flex-end}
+.med-meta{font-size:.7rem;color:#617e99;margin-left:10px;margin-top:2px;margin-bottom:4px}
+.med-meta.user{text-align:right;margin-right:10px;margin-left:0}
+.med-bar{background:#fff;border-top:1px solid rgba(0,50,70,.1);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.med-plus-wrap{position:relative}
+.med-plus{background:#0b3b5c;border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,60,100,.3);flex-shrink:0}
+.med-menu{position:absolute;bottom:54px;left:0;background:#fff;border-radius:20px;box-shadow:0 8px 24px rgba(0,40,70,.2);border:1px solid #c2d8ec;padding:6px;min-width:160px;z-index:200;display:none;flex-direction:column;gap:2px}
+.med-menu.open{display:flex}
+.med-menu-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;background:none;border:none;font-size:.9rem;font-weight:500;color:#124263;cursor:pointer;width:100%;text-align:left}
+.med-menu-btn:hover{background:#e3f0ff}
+.med-input{flex:1;background:#f4f9ff;border:1px solid #c2dae9;border-radius:32px;padding:12px 18px;font-size:.9rem;outline:none}
+.med-send{background:#0b3b5c;border:none;color:#fff;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0}
+.pay-btns{display:flex;gap:10px;margin:10px 0;flex-wrap:wrap}
+.pay-btn{background:#fff;border:1.5px solid #b3d5e9;border-radius:32px;padding:9px 18px;font-weight:600;font-size:.88rem;color:#124263;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.pay-btn.sel{background:#0b3b5c;border-color:#0b3b5c;color:#fff}
+.addr-area{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.addr-field{border:1px solid #c2dae9;border-radius:20px;padding:12px 16px;font-size:.9rem;background:#fff;resize:vertical;font-family:inherit}
+.addr-submit{background:#0b3b5c;border:none;color:#fff;font-weight:600;padding:12px 18px;border-radius:40px;cursor:pointer;font-size:.9rem;margin-top:8px}
+.rx-preview{background:#e9f2fa;border-radius:16px;padding:10px 14px;margin-top:8px;display:flex;align-items:center;gap:10px;border:1px dashed #2f86a1}
+.rx-icon{background:#fff;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#0b3b5c;box-shadow:0 2px 6px rgba(0,35,70,.1);flex-shrink:0}
+.hosp-sel-area{margin:10px 0}
+.hosp-sel-area select{width:100%;padding:10px 14px;border:1.5px solid #c2dae9;border-radius:20px;font-size:.9rem;background:#fff;color:#124263;outline:none;margin-bottom:8px}
+.order-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 4px 8px rgba(0,0,0,.05);margin-bottom:14px;border-left:4px solid var(--primary)}
+.order-card.fulfilled{border-left-color:var(--success)}
+.appt-item{display:flex;justify-content:space-between;align-items:flex-start;padding:14px;border-bottom:1px solid var(--gray-light);gap:12px;flex-wrap:wrap}
+.appt-item:last-child{border-bottom:none}
+.admin-page{min-height:100vh;background:#f1f5f9}
+.admin-hdr{background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.admin-hdr-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:66px;gap:12px}
+.admin-logo{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.admin-logo span{background:#ef4444;padding:3px 8px;border-radius:6px;font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.admin-nav{display:flex;gap:4px;flex-wrap:wrap}
+.admin-btn{background:transparent;border:none;color:rgba(255,255,255,.7);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:500;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.admin-btn:hover,.admin-btn.active{background:rgba(255,255,255,.15);color:#fff}
+.admin-btn.logout-red{color:#fca5a5}.admin-btn.logout-red:hover{color:#fff;background:rgba(239,68,68,.3)}
+.admin-body{max-width:1200px;margin:0 auto;padding:28px 24px 60px}
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px}
+.stat-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.stat-icon.blue{background:#eff6ff}.stat-icon.green{background:#f0fdf4}.stat-icon.orange{background:#fff7ed}.stat-icon.purple{background:#faf5ff}
+.stat-info h3{font-size:1.7rem;font-weight:700}.stat-info p{color:var(--gray);font-size:.82rem}
+.admin-section{background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,.05);margin-bottom:24px}
+.admin-sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid var(--gray-light);flex-wrap:wrap;gap:10px}
+.admin-sec-hdr h2{font-size:1.1rem;display:flex;align-items:center;gap:8px}
+.badge{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700;background:var(--warning);color:#fff}
+.badge.green{background:var(--success)}
+.hosp-review{border:2px solid var(--gray-light);border-radius:12px;padding:18px;margin-bottom:14px;transition:border-color .2s}
+.hosp-review:hover{border-color:var(--primary)}
+.hosp-review.pending-left{border-left:4px solid var(--warning)}
+.hosp-review.verified-left{border-left:4px solid var(--success)}
+.review-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.review-details{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+.review-detail{background:#f8fafc;border-radius:8px;padding:8px 12px}
+.review-detail label{font-size:.72rem;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
+.review-detail span{font-size:.88rem;font-weight:500}
+.admin-tab{display:none}.admin-tab.active{display:block}
+.admin-table{width:100%;border-collapse:collapse}
+.admin-table th{background:#f8fafc;padding:10px 14px;text-align:left;font-size:.8rem;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.admin-table td{padding:12px 14px;border-bottom:1px solid var(--gray-light);font-size:.88rem}
+.admin-table tr:last-child td{border-bottom:none}
+.admin-table tr:hover td{background:#fafafa}
+.empty-state{text-align:center;padding:48px 20px;color:var(--gray)}
+.empty-state i{font-size:2.5rem;margin-bottom:12px;opacity:.35;display:block}
+footer{background:var(--dark);color:#fff;padding:36px 0;margin-top:60px;text-align:center}
+
+/* REVIEWS */
+.reviews-section{margin-top:14px;border-top:1px solid var(--gray-light);padding-top:12px}
+.reviews-summary{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.rating-big{font-size:2rem;font-weight:800;color:var(--dark);line-height:1}
+.stars{color:#f59e0b;font-size:1rem;letter-spacing:1px}
+.rating-meta{font-size:.78rem;color:var(--gray)}
+.reviews-list{display:flex;flex-direction:column;gap:8px;max-height:0;overflow:hidden;transition:max-height .4s ease}
+.reviews-list.open{max-height:600px}
+.review-item{background:#f8fafc;border-radius:10px;padding:10px 14px;font-size:.84rem}
+.review-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.review-avatar{width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.review-name{font-weight:600;color:var(--dark);font-size:.82rem}
+.review-date{margin-left:auto;color:var(--gray);font-size:.74rem}
+.review-stars{color:#f59e0b;font-size:.78rem}
+.review-text{color:#475569;line-height:1.5}
+.btn-toggle-reviews{background:none;border:none;color:var(--primary);font-size:.82rem;font-weight:600;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px}
+.btn-toggle-reviews:hover{text-decoration:underline}
+.rating-bar-wrap{flex:1;min-width:80px}
+.rating-bar-row{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--gray);margin-bottom:2px}
+.rating-bar-bg{flex:1;height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.rating-bar-fill{height:100%;background:#f59e0b;border-radius:3px}
+
+/* ===== LANDING PAGE ===== */
+.land-header{position:fixed;top:0;left:0;right:0;z-index:200;padding:0;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.07);transition:box-shadow .3s}
+.land-header.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.land-hdr-inner{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.land-nav{display:flex;align-items:center;gap:10px}
+.land-hero{min-height:100vh;background:linear-gradient(160deg,#f0f7ff 0%,#e8f4fd 40%,#dbeafe 100%);display:flex;align-items:center;position:relative;overflow:hidden;padding-top:80px}
+.land-hero::before{content:'';position:absolute;top:-120px;right:-120px;width:600px;height:600px;background:radial-gradient(circle,rgba(37,99,235,.08) 0%,transparent 70%);pointer-events:none}
+.land-hero::after{content:'';position:absolute;bottom:-80px;left:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(14,165,233,.07) 0%,transparent 70%);pointer-events:none}
+.land-hero-content{position:relative;z-index:2;max-width:620px}
+.land-hero-content h1{font-size:3.2rem;font-weight:800;color:#0f172a;line-height:1.18;margin-bottom:20px}
+.land-hero-content h1 span{color:var(--primary)}
+.land-hero-content p{font-size:1.1rem;color:#475569;margin-bottom:36px;line-height:1.75}
+.land-hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-white{background:#fff;color:var(--primary);font-weight:700;box-shadow:0 2px 12px rgba(37,99,235,.15)}.btn-white:hover{background:#f0f9ff;box-shadow:0 4px 20px rgba(37,99,235,.22)}
+.btn-ghost{background:transparent;border:2px solid var(--primary);color:var(--primary);font-weight:600}.btn-ghost:hover{background:var(--primary);color:#fff}
+.land-hero-visual{position:absolute;right:0;top:50%;transform:translateY(-50%);width:480px;opacity:1;pointer-events:none;z-index:1}
+.land-hero-stats{display:flex;gap:0;margin-top:52px;flex-wrap:wrap;background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.07);overflow:hidden;border:1px solid #e2e8f0}
+.land-stat{text-align:center;padding:20px 28px;flex:1;border-right:1px solid #e2e8f0;position:relative}
+.land-stat:last-child{border-right:none}
+.land-stat-num{font-size:1.8rem;font-weight:800;line-height:1;color:var(--primary)}
+.land-stat-lbl{font-size:.78rem;color:var(--gray);margin-top:5px;font-weight:500}
+.land-section{padding:80px 0}
+.land-section-alt{background:#fff}
+.land-section-title{text-align:center;margin-bottom:56px}
+.land-section-title h2{font-size:2.2rem;font-weight:800;color:var(--dark);margin-bottom:12px}
+.land-section-title p{color:var(--gray);font-size:1.05rem;max-width:560px;margin:0 auto}
+.land-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px}
+.land-feature-card{background:#fff;border-radius:16px;padding:32px 28px;box-shadow:0 4px 20px rgba(0,0,0,.06);transition:transform .25s,box-shadow .25s;border-top:4px solid var(--primary)}
+.land-feature-card:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(37,99,235,.12)}
+.land-feature-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.land-feature-card h3{font-size:1.1rem;font-weight:700;margin-bottom:10px;color:var(--dark)}
+.land-feature-card p{color:var(--gray);font-size:.9rem;line-height:1.65}
+.land-how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
+.land-step{text-align:center;padding:28px 20px}
+.land-step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font-size:1.3rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.land-step h3{font-weight:700;margin-bottom:8px;color:var(--dark)}
+.land-step p{color:var(--gray);font-size:.88rem;line-height:1.6}
+.land-step-connector{display:none}
+.land-specialties{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.land-spec-chip{padding:10px 20px;background:#f0f9ff;color:var(--primary);border-radius:32px;font-weight:600;font-size:.88rem;border:1.5px solid #bfdbfe;transition:all .2s}
+.land-spec-chip:hover{background:var(--primary);color:#fff}
+.land-testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.land-testi{background:#fff;border-radius:16px;padding:28px;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.land-testi-stars{color:#f59e0b;margin-bottom:12px;font-size:1rem}
+.land-testi-text{color:#475569;font-size:.9rem;line-height:1.7;margin-bottom:18px;font-style:italic}
+.land-testi-author{display:flex;align-items:center;gap:10px}
+.land-testi-avatar{width:38px;height:38px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.land-testi-name{font-weight:700;font-size:.88rem;color:var(--dark)}
+.land-testi-role{font-size:.78rem;color:var(--gray)}
+.land-cta{background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:80px 0;text-align:center}
+.land-cta h2{font-size:2.4rem;font-weight:800;color:#fff;margin-bottom:16px}
+.land-cta p{color:rgba(255,255,255,.8);font-size:1.05rem;margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto}
+.land-cta-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.land-footer{background:#0f172a;color:#94a3b8;padding:48px 0 28px}
+.land-footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.land-footer-brand .logo{color:#fff;margin-bottom:14px}
+.land-footer-brand p{font-size:.88rem;line-height:1.7;max-width:300px}
+.land-footer-col h4{color:#fff;font-weight:700;margin-bottom:16px;font-size:.95rem}
+.land-footer-col ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.land-footer-col ul li a{
+  color:#94a3b8;
+  text-decoration:none;
+  font-size:.88rem;
+  transition:color .2s
+}
+.land-footer-col ul li a:hover{
+  color:#fff
+}
+.land-footer-bottom{
+  border-top:1px solid #1e293b;
+  padding-top:24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:gap;
+  gap:12px;
+  font-size:.82rem
+}
+.land-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:#dbeafe;
+  border:1.5px solid #bfdbfe;
+  color:var(--primary);
+  padding:6px 14px;
+  border-radius:32px;
+  font-size:.8rem;
+  font-weight:600;
+  margin-bottom:20px
+}
+@media(max-width:768px){
+  .land-hero-content h1{
+    font-size:2.1rem
+  }
+  .land-footer-grid{
+    grid-template-columns:1fr
+  }
+  .land-hero-visual{
+    display:none
+  }
+  .land-hero-stats{
+    gap:0
+  }
+  .land-stat{
+    padding:14px 12px
+  }
+  .land-how-dual{
+    grid-template-columns:1fr!important
+  }
+  .land-testimonials{
+    grid-template-columns:1fr!important
+  }
+}
+@media(max-width:768px){
+  .booking-layout{
+    flex-direction:column
+  }
+  .cal-wrap{
+    width:100%
+  }
+  .chat-wrap{
+    flex-direction:column;
+    height:auto
+  }
+  .chat-sidebar{
+    width:100%;
+    height:260px
+  }
+  .bnav-text{
+    display:none
+  }
+  .bnav-item{
+    padding:12px
+  }
+  .bnav-icon{
+    font-size:1.6rem;
+    margin-bottom:0
+  }
+  .vsteps{
+    flex-direction:column
+  }
+  .hosp-grid{
+    grid-template-columns:1fr
+  }
+  .hosp-card{
+    flex-direction:column;
+    align-items:flex-start
+  }
+  .hosp-card-actions{
+    flex-direction:row;
+    flex-wrap:wrap;
+    width:100%
+  }
+  .admin-nav{
+    gap:2px
+  }
+  .admin-btn{
+    padding:6px 10px;
+    font-size:.8rem
+  }
+  .page-hdr h1{
+    font-size:1.4rem
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+<div id="spinner"><div class="spin"></div></div>
+
+<header id="main-header" class="hidden">
+  <div class="container hdr">
+    <div class="logo"><i class="fas fa-hospital"></i> Veracare</div>
+    <nav><ul>
+      <li class="user-profile">
+        <div class="profile-circle" id="hdr-initial">U</div>
+        <div><div id="hdr-name" style="font-weight:600">User</div><div id="hdr-role" style="font-size:.82rem;color:var(--gray)">Role</div></div>
+      </li>
+      <li><button class="btn btn-outline btn-sm" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main>
+
+<!-- LANDING PAGE -->
+<section id="page-landing">
+
+  <!-- Sticky Nav -->
+  <header class="land-header" id="land-header">
+    <div class="container land-hdr-inner">
+      <div class="logo"><i class="fas fa-hospital"></i> Veracare</div>
+      <nav class="land-nav">
+        <button class="btn btn-ghost btn-sm" id="land-login-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+        <button class="btn btn-white btn-sm" id="land-signup-btn"><i class="fas fa-user-plus"></i> Sign Up</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="land-hero">
+    <div class="container" style="width:100%">
+      <div class="land-hero-content">
+        <div class="land-badge"><i class="fas fa-shield-alt"></i> Trusted by 50,000+ Patients Across India</div>
+        <h1>Smarter Healthcare,<br><span>Closer to You</span></h1>
+        <p>Access verified hospitals, book specialist appointments, consult via live chat, and manage your complete health journey — all from one secure, seamless platform.</p>
+        <div class="land-hero-btns">
+          <button class="btn btn-primary" id="land-hero-getstarted" style="padding:14px 32px;font-size:1rem"><i class="fas fa-arrow-right"></i> Get Started — It's Free</button>
+          <button class="btn btn-ghost" id="land-hero-login" style="padding:14px 28px;font-size:1rem"><i class="fas fa-sign-in-alt"></i> Log In</button>
+        </div>
+        <div class="land-hero-stats">
+          <div class="land-stat"><div class="land-stat-num">500+</div><div class="land-stat-lbl">Verified Hospitals</div></div>
+          <div class="land-stat"><div class="land-stat-num">50K+</div><div class="land-stat-lbl">Patients Served</div></div>
+          <div class="land-stat"><div class="land-stat-num">98%</div><div class="land-stat-lbl">Satisfaction Rate</div></div>
+          <div class="land-stat"><div class="land-stat-num">24/7</div><div class="land-stat-lbl">Support Available</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Decorative visual -->
+    <div class="land-hero-visual" aria-hidden="true">
+      <svg viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="240" cy="240" r="220" fill="#dbeafe" opacity=".5"/>
+        <circle cx="240" cy="240" r="160" fill="#bfdbfe" opacity=".4"/>
+        <circle cx="240" cy="240" r="100" fill="#93c5fd" opacity=".3"/>
+        <!-- Cross symbol -->
+        <rect x="210" y="140" width="60" height="200" rx="12" fill="#2563eb" opacity=".18"/>
+        <rect x="140" y="210" width="200" height="60" rx="12" fill="#2563eb" opacity=".18"/>
+        <!-- Floating card 1 -->
+        <rect x="300" y="100" width="140" height="70" rx="14" fill="#fff" opacity=".9"/>
+        <rect x="318" y="118" width="28" height="28" rx="8" fill="#dbeafe"/>
+        <rect x="355" y="122" width="70" height="8" rx="4" fill="#93c5fd"/>
+        <rect x="355" y="136" width="50" height="6" rx="3" fill="#bfdbfe"/>
+        <!-- Floating card 2 -->
+        <rect x="40" y="260" width="150" height="72" rx="14" fill="#fff" opacity=".9"/>
+        <rect x="58" y="278" width="28" height="28" rx="8" fill="#d1fae5"/>
+        <rect x="96" y="282" width="74" height="8" rx="4" fill="#6ee7b7"/>
+        <rect x="96" y="296" width="54" height="6" rx="3" fill="#a7f3d0"/>
+        <!-- Floating card 3 -->
+        <rect x="310" y="310" width="130" height="68" rx="14" fill="#fff" opacity=".9"/>
+        <rect x="328" y="327" width="28" height="28" rx="8" fill="#fef3c7"/>
+        <rect x="366" y="331" width="60" height="8" rx="4" fill="#fcd34d"/>
+        <rect x="366" y="345" width="44" height="6" rx="3" fill="#fde68a"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- FEATURES — dual audience tabs -->
+  <section class="land-section land-section-alt">
+    <div class="container">
+      <div class="land-section-title">
+        <h2>One Platform. Two Powerful Portals.</h2>
+        <p>Veracare is built for both sides of healthcare — patients who need care, and hospitals that provide it.</p>
+      </div>
+
+      <!-- Audience toggle -->
+      <div style="display:flex;justify-content:center;margin-bottom:44px">
+        <div style="display:inline-flex;background:#f1f5f9;border-radius:12px;padding:5px;gap:4px">
+          <button id="feat-tab-patient" onclick="switchFeatureTab('patient')" style="padding:10px 28px;border-radius:8px;border:none;font-weight:700;font-size:.95rem;cursor:pointer;background:var(--primary);color:#fff;transition:all .25s">🧑‍⚕️ For Patients</button>
+          <button id="feat-tab-hospital" onclick="switchFeatureTab('hospital')" style="padding:10px 28px;border-radius:8px;border:none;font-weight:700;font-size:.95rem;cursor:pointer;background:transparent;color:var(--gray);transition:all .25s">🏥 For Hospitals</button>
+        </div>
+      </div>
+
+      <!-- Patient features -->
+      <div id="feat-patient" class="land-features">
+        <div class="land-feature-card">
+          <div class="land-feature-icon"><i class="fas fa-hospital"></i></div>
+          <h3>Discover Verified Hospitals</h3>
+          <p>Browse 500+ verified hospitals with real ratings, patient reviews, speciality details, and contact info — all in one place.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:var(--secondary)">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#059669,#10b981)"><i class="fas fa-calendar-check"></i></div>
+          <h3>Instant Appointment Booking</h3>
+          <p>Book OPD slots in seconds. View real-time availability, pick a time that suits you, and get instant confirmation.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:#8b5cf6">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)"><i class="fas fa-comments"></i></div>
+          <h3>Live Hospital Chat</h3>
+          <p>Ask pre-visit questions directly to hospital teams. Get clarity on procedures, costs, and timings before you arrive.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:var(--warning)">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#d97706,#f59e0b)"><i class="fas fa-pills"></i></div>
+          <h3>Medicine Ordering</h3>
+          <p>Upload your prescription and order medicines online. Delivered from verified pharmacies to your doorstep.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:var(--danger)">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#dc2626,#ef4444)"><i class="fas fa-map-marker-alt"></i></div>
+          <h3>Built-in Hospital Locator</h3>
+          <p>Find hospitals near you on an integrated map. One tap to get directions straight to any facility.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:#0ea5e9">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#0284c7,#0ea5e9)"><i class="fas fa-user-shield"></i></div>
+          <h3>Private & Secure Records</h3>
+          <p>Your health data is fully encrypted and never shared. Manage your medical history with complete peace of mind.</p>
+        </div>
+      </div>
+
+      <!-- Hospital features -->
+      <div id="feat-hospital" class="land-features" style="display:none">
+        <div class="land-feature-card" style="border-top-color:var(--secondary)">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#059669,#10b981)"><i class="fas fa-clipboard-check"></i></div>
+          <h3>Easy Hospital Registration</h3>
+          <p>Register your hospital in minutes. Submit your details, specialities, and contact information to get listed on the platform.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:var(--primary)">
+          <div class="land-feature-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Official Verification Badge</h3>
+          <p>Go through our streamlined verification process and earn the Veracare Verified badge — building instant patient trust.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:#8b5cf6">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)"><i class="fas fa-reply-all"></i></div>
+          <h3>Manage Patient Queries</h3>
+          <p>Receive and respond to patient questions through a dedicated inbox. Reduce phone calls and improve communication efficiency.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:var(--warning)">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#d97706,#f59e0b)"><i class="fas fa-calendar-alt"></i></div>
+          <h3>Appointment Dashboard</h3>
+          <p>View and manage all incoming appointments in one organised dashboard. Set availability, block dates, and stay in control.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:var(--danger)">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#dc2626,#ef4444)"><i class="fas fa-star"></i></div>
+          <h3>Ratings & Visibility</h3>
+          <p>Authentic patient reviews boost your hospital's credibility. Get discovered by thousands of patients actively searching for care.</p>
+        </div>
+        <div class="land-feature-card" style="border-top-color:#0ea5e9">
+          <div class="land-feature-icon" style="background:linear-gradient(135deg,#0284c7,#0ea5e9)"><i class="fas fa-user-edit"></i></div>
+          <h3>Live Profile Management</h3>
+          <p>Update your hospital profile, specialities, hours, and contact info at any time. Always keep your listing accurate and current.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS — dual audience -->
+  <section class="land-section" style="background:#f8fafc">
+    <div class="container">
+      <div class="land-section-title">
+        <h2>How Veracare Works</h2>
+        <p>Simple, fast, and designed for everyone — whether you're seeking care or providing it.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;flex-wrap:wrap" class="land-how-dual">
+
+        <!-- Patient journey -->
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
+            <div style="width:40px;height:40px;background:#dbeafe;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🧑‍⚕️</div>
+            <h3 style="font-size:1.15rem;font-weight:700;color:var(--dark)">For Patients</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+              <div><strong style="color:var(--dark)">Create a Free Account</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Sign up as a patient in under a minute. No paperwork, no hassle.</p></div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+              <div><strong style="color:var(--dark)">Find the Right Hospital</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Search by speciality, city, or name. Read reviews and compare hospitals.</p></div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+              <div><strong style="color:var(--dark)">Book & Chat</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Book your appointment slot and message the hospital with any pre-visit questions.</p></div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+              <div><strong style="color:var(--dark)">Get the Care You Need</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Arrive prepared and confident. Your health journey, fully organized.</p></div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:28px" onclick="document.getElementById('land-hero-getstarted').click()"><i class="fas fa-user-plus"></i> Sign Up as Patient</button>
+        </div>
+
+        <!-- Hospital journey -->
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
+            <div style="width:40px;height:40px;background:#d1fae5;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🏥</div>
+            <h3 style="font-size:1.15rem;font-weight:700;color:var(--dark)">For Hospitals</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--secondary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+              <div><strong style="color:var(--dark)">Register Your Hospital</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Sign up with your hospital name, address, specialities, and contact details.</p></div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--secondary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+              <div><strong style="color:var(--dark)">Complete Verification</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Submit your details for review and receive the official Veracare Verified badge.</p></div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--secondary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+              <div><strong style="color:var(--dark)">Receive & Manage Appointments</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Patients book slots directly. Manage all appointments from your hospital dashboard.</p></div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--secondary);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+              <div><strong style="color:var(--dark)">Respond to Patient Queries</strong><p style="color:var(--gray);font-size:.88rem;margin-top:3px">Handle patient questions through a live chat interface — all in one organised portal.</p></div>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:28px" onclick="document.getElementById('land-cta-hospital').click()"><i class="fas fa-hospital"></i> Register Your Hospital</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECIALTIES -->
+  <section class="land-section land-section-alt">
+    <div class="container">
+      <div class="land-section-title">
+        <h2>Specialties We Cover</h2>
+        <p>Patients find care and hospitals get listed across all major medical disciplines.</p>
+      </div>
+      <div class="land-specialties">
+        <span class="land-spec-chip"><i class="fas fa-heart"></i> Cardiology</span>
+        <span class="land-spec-chip"><i class="fas fa-brain"></i> Neurology</span>
+        <span class="land-spec-chip"><i class="fas fa-bone"></i> Orthopedics</span>
+        <span class="land-spec-chip"><i class="fas fa-ribbon"></i> Oncology</span>
+        <span class="land-spec-chip"><i class="fas fa-baby"></i> Pediatrics</span>
+        <span class="land-spec-chip"><i class="fas fa-eye"></i> Ophthalmology</span>
+        <span class="land-spec-chip"><i class="fas fa-tooth"></i> Dentistry</span>
+        <span class="land-spec-chip"><i class="fas fa-procedures"></i> General Surgery</span>
+        <span class="land-spec-chip"><i class="fas fa-female"></i> Gynecology</span>
+        <span class="land-spec-chip"><i class="fas fa-lungs"></i> Pulmonology</span>
+        <span class="land-spec-chip"><i class="fas fa-microscope"></i> Pathology</span>
+        <span class="land-spec-chip"><i class="fas fa-allergies"></i> Dermatology</span>
+        <span class="land-spec-chip"><i class="fas fa-kidneys"></i> Nephrology</span>
+        <span class="land-spec-chip"><i class="fas fa-dna"></i> Genetics</span>
+        <span class="land-spec-chip"><i class="fas fa-ambulance"></i> Emergency Care</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS — mixed patient + hospital -->
+  <section class="land-section" style="background:#f8fafc">
+    <div class="container">
+      <div class="land-section-title">
+        <h2>Trusted by Patients & Hospitals Alike</h2>
+        <p>Real experiences from the people who use Veracare every day — on both sides of care.</p>
+      </div>
+      <div class="land-testimonials">
+        <div class="land-testi">
+          <div class="land-testi-stars">★★★★★</div>
+          <p class="land-testi-text">"Veracare made finding a cardiologist incredibly easy. I booked my appointment in under 5 minutes and got all my queries answered before visiting. Absolutely brilliant."</p>
+          <div class="land-testi-author">
+            <div class="land-testi-avatar">R</div>
+            <div><div class="land-testi-name">Ravi Sharma</div><div class="land-testi-role">Patient · Delhi</div></div>
+          </div>
+        </div>
+        <div class="land-testi" style="border-left:4px solid var(--secondary)">
+          <div class="land-testi-stars">★★★★★</div>
+          <p class="land-testi-text">"Registering our hospital on Veracare was seamless. The verification process was transparent, and within days we started receiving appointment bookings from new patients."</p>
+          <div class="land-testi-author">
+            <div class="land-testi-avatar" style="background:var(--secondary)">A</div>
+            <div><div class="land-testi-name">Dr. Arjun Malhotra</div><div class="land-testi-role">Hospital Director · Fortis, Gurugram</div></div>
+          </div>
+        </div>
+        <div class="land-testi">
+          <div class="land-testi-stars">★★★★★</div>
+          <p class="land-testi-text">"Managing patient queries used to be chaotic — calls, WhatsApp, emails everywhere. The Veracare portal centralised everything. Our front desk team loves it."</p>
+          <div class="land-testi-author">
+            <div class="land-testi-avatar" style="background:#7c3aed">S</div>
+            <div><div class="land-testi-name">Sunita Rao</div><div class="land-testi-role">Admin Manager · Sahyadri Hospital, Pune</div></div>
+          </div>
+        </div>
+        <div class="land-testi">
+          <div class="land-testi-stars">★★★★★</div>
+          <p class="land-testi-text">"As someone managing my mother's healthcare from another city, Veracare has been a lifesaver. I can book appointments and chat with hospitals without being there physically."</p>
+          <div class="land-testi-author">
+            <div class="land-testi-avatar" style="background:#059669">P</div>
+            <div><div class="land-testi-name">Priya Mehta</div><div class="land-testi-role">Patient · Pune</div></div>
+          </div>
+        </div>
+        <div class="land-testi" style="border-left:4px solid var(--secondary)">
+          <div class="land-testi-stars">★★★★☆</div>
+          <p class="land-testi-text">"The verification badge has genuinely improved patient trust in our facility. New patients specifically mention finding us through Veracare. The dashboard is clean and easy to use."</p>
+          <div class="land-testi-author">
+            <div class="land-testi-avatar" style="background:var(--warning)">D</div>
+            <div><div class="land-testi-name">Dr. Anand Joshi</div><div class="land-testi-role">Hospital Admin · Ruby Hall Clinic, Pune</div></div>
+          </div>
+        </div>
+        <div class="land-testi">
+          <div class="land-testi-stars">★★★★★</div>
+          <p class="land-testi-text">"I needed a specialist urgently. Veracare showed me verified hospitals nearby, let me read reviews, and I had an appointment confirmed within 10 minutes. Incredible service."</p>
+          <div class="land-testi-author">
+            <div class="land-testi-avatar" style="background:var(--danger)">K</div>
+            <div><div class="land-testi-name">Karan Jain</div><div class="land-testi-role">Patient · Mumbai</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA — dual -->
+  <section class="land-cta">
+    <div class="container">
+      <h2>The Right Platform for Both Sides of Healthcare</h2>
+      <p>Whether you're a patient seeking the best care or a hospital looking to reach more patients — Veracare is built for you.</p>
+      <div class="land-cta-btns">
+        <button class="btn btn-white" id="land-cta-patient"><i class="fas fa-user-injured"></i> Get Started as Patient</button>
+        <button class="btn btn-ghost" id="land-cta-hospital"><i class="fas fa-hospital"></i> Register Your Hospital</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="land-footer">
+    <div class="container">
+      <div class="land-footer-grid">
+        <div class="land-footer-brand">
+          <div class="logo"><i class="fas fa-hospital"></i> Veracare</div>
+          <p>India's trusted healthcare platform connecting patients with verified hospitals for a seamless, secure medical experience.</p>
+        </div>
+        <div class="land-footer-col">
+          <h4>For Patients</h4>
+          <ul>
+            <li><a href="#">Find Hospitals</a></li>
+            <li><a href="#">Book Appointment</a></li>
+            <li><a href="#">Order Medicine</a></li>
+            <li><a href="#">Ask a Query</a></li>
+          </ul>
+        </div>
+        <div class="land-footer-col">
+          <h4>For Hospitals</h4>
+          <ul>
+            <li><a href="#">Register Hospital</a></li>
+            <li><a href="#">Manage Appointments</a></li>
+            <li><a href="#">Patient Queries</a></li>
+            <li><a href="#">Verification</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="land-footer-bottom">
+        <span>© 2025 Veracare. All rights reserved.</span>
+        <span style="display:flex;gap:16px"><a href="#" style="color:#94a3b8;text-decoration:none">Privacy Policy</a><a href="#" style="color:#94a3b8;text-decoration:none">Terms of Service</a></span>
+      </div>
+    </div>
+  </footer>
+
+</section>
+
+<!-- AUTH -->
+<section id="page-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div style="margin-bottom:16px">
+        <button id="btn-back-landing" style="background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--gray);font-size:.88rem;font-weight:600;padding:0;transition:color .2s" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--gray)'">
+          <i class="fas fa-arrow-left"></i> Back to Home
+        </button>
+      </div>
+      <div style="text-align:center;margin-bottom:22px">
+        <div class="logo" style="justify-content:center;font-size:2rem"><i class="fas fa-hospital"></i> Veracare</div>
+        <p style="color:var(--gray);margin-top:6px">Healthcare made simple</p>
+      </div>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login">Login</div>
+        <div class="auth-tab" id="tab-signup">Sign Up</div>
+      </div>
+      <form class="auth-form active" id="form-login">
+        <div class="form-group"><label>Email Address</label><input type="email" id="login-email" class="form-control" placeholder="Enter your email" required></div>
+        <div class="form-group"><label>Password</label><input type="password" id="login-password" class="form-control" placeholder="Enter your password" required></div>
+        <div class="form-group"><label>I am a</label>
+          <select id="login-role" class="form-control" required>
+            <option value="">Select role</option><option value="patient">Patient</option>
+            <option value="hospital">Hospital</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px"><i class="fas fa-sign-in-alt"></i> Login</button>
+      </form>
+      <form class="auth-form" id="form-signup">
+        <div class="form-group"><label>Full Name</label><input type="text" id="su-name" class="form-control" placeholder="Your full name" required></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="su-email" class="form-control" placeholder="Your email" required></div>
+        <div class="form-group"><label>Password <small style="color:var(--gray)">(min 6 chars)</small></label><input type="password" id="su-password" class="form-control" placeholder="Create password" required></div>
+        <div class="form-group"><label>I am registering as</label>
+          <select id="su-role" class="form-control" required>
+            <option value="">Select role</option><option value="patient">Patient</option><option value="hospital">Hospital</option>
+          </select>
+        </div>
+        <div id="su-hosp-fields" class="hidden">
+          <div class="form-group"><label>Hospital Name</label><input type="text" id="su-hname" class="form-control" placeholder="Hospital name"></div>
+          <div class="form-group"><label>Address</label><input type="text" id="su-haddr" class="form-control" placeholder="Hospital address"></div>
+          <div class="form-group"><label>Specialties</label><input type="text" id="su-hspec" class="form-control" placeholder="e.g. Cardiology, Pediatrics"></div>
+          <div class="form-group"><label>Contact Number</label><input type="text" id="su-hphone" class="form-control" placeholder="Contact number"></div>
+          <div class="form-group"><label>Operating Hours</label><input type="text" id="su-hhours" class="form-control" placeholder="e.g. 24/7 or Mon-Fri 9AM-6PM"></div>
+        </div>
+        <div id="su-pat-fields" class="hidden">
+          <div class="form-group"><label>Phone Number</label><input type="tel" id="su-pphone" class="form-control" placeholder="Your phone number"></div>
+        </div>
+        <button type="submit" class="btn btn-secondary" style="width:100%;margin-top:10px"><i class="fas fa-user-plus"></i> Create Account</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- HOSPITAL DASHBOARD -->
+<section id="page-hospital" class="hidden">
+  <div class="container dash-wrap">
+
+    <div id="h-verification" class="dash-content active">
+      <div class="page-hdr">
+        <h1>Hospital Verification</h1>
+        <span id="h-verify-badge" class="status pending" style="display:none"><i class="fas fa-clock"></i> Pending</span>
+      </div>
+
+      <div class="card" style="max-width:780px">
+        <h3 style="margin-bottom:20px">Your Hospital Details</h3>
+        <form id="form-hdetails">
+          <div class="form-group"><label>Hospital Name</label><input type="text" id="hd-name" class="form-control"></div>
+          <div class="form-group"><label>Address</label><input type="text" id="hd-addr" class="form-control"></div>
+          <div class="form-group"><label>Contact Number</label><input type="text" id="hd-phone" class="form-control"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="hd-email" class="form-control"></div>
+          <div class="form-group"><label>Specialties</label><input type="text" id="hd-spec" class="form-control" placeholder="e.g. Cardiology, Pediatrics"></div>
+          <div class="form-group"><label>Operating Hours</label><input type="text" id="hd-hours" class="form-control"></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Details</button>
+            <button type="button" class="btn btn-outline" id="btn-open-phone-verify" onclick="openPhoneVerifyModal()" style="display:flex;align-items:center;gap:8px">
+              <i class="fas fa-mobile-alt"></i> Verify Phone Number
+              <span id="phone-verified-badge-inline" class="status verified" style="display:none;font-size:.75rem;padding:2px 8px"><i class="fas fa-check-circle"></i> Verified</span>
+              <span id="phone-unverified-badge-inline" class="status pending" style="font-size:.75rem;padding:2px 8px"><i class="fas fa-clock"></i> Not Verified</span>
+            </button>
+          </div>
+        </form>
+        <div id="verify-info-box" style="margin-top:20px;padding:14px;background:#f0f9ff;border-radius:8px;color:var(--primary);font-size:.9rem">
+          <i class="fas fa-info-circle"></i> Save your details to complete your hospital profile.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHONE VERIFY MODAL ── -->
+    <div id="phone-verify-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)">
+      <div style="background:#fff;border-radius:20px;width:100%;max-width:440px;box-shadow:0 24px 60px rgba(0,0,0,.18);overflow:hidden;animation:modalPop .25s ease">
+
+        <!-- Modal Header -->
+        <div style="background:linear-gradient(135deg,var(--primary),#1d4ed8);padding:22px 24px 20px;color:#fff;position:relative">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:44px;height:44px;background:rgba(255,255,255,.18);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-mobile-alt" style="font-size:1.3rem"></i>
+            </div>
+            <div>
+              <h3 style="margin:0;font-size:1.1rem">Phone Verification</h3>
+              <p style="margin:2px 0 0;font-size:.82rem;opacity:.85">OTP will be sent to your mobile number</p>
+            </div>
+          </div>
+          <button onclick="closePhoneVerifyModal()" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.35)'" onmouseout="this.style.background='rgba(255,255,255,.2)'">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding:24px">
+
+          <!-- STEP 1: Enter Phone -->
+          <div id="modal-step-phone">
+            <p style="color:var(--gray);font-size:.88rem;margin-bottom:18px;line-height:1.5">Enter your hospital's registered mobile number. We'll send a 6-digit OTP to verify it.</p>
+            <label style="font-weight:600;font-size:.88rem;display:block;margin-bottom:8px;color:var(--dark)">Mobile Number</label>
+            <div style="display:flex;border:2px solid var(--gray-light);border-radius:10px;overflow:hidden;background:#fff;transition:border-color .3s" id="modal-phone-wrap">
+              <span style="padding:13px 14px;background:#f8fafc;color:var(--gray);font-weight:700;font-size:.9rem;border-right:2px solid var(--gray-light);white-space:nowrap;display:flex;align-items:center;gap:6px">
+                🇮🇳 +91
+              </span>
+              <input type="tel" id="otp-phone-input" maxlength="10" placeholder="Enter 10-digit number"
+                style="flex:1;padding:13px 14px;border:none;outline:none;font-size:1rem;background:#fff;letter-spacing:.5px"
+                oninput="this.value=this.value.replace(/\D/g,'')"
+                onfocus="document.getElementById('modal-phone-wrap').style.borderColor='var(--primary)'"
+                onblur="document.getElementById('modal-phone-wrap').style.borderColor='var(--gray-light)'"
+                onkeypress="if(event.key==='Enter') sendOTP()">
+            </div>
+            <div id="otp-send-error" style="display:none;color:var(--danger);font-size:.83rem;margin-top:8px;display:flex;align-items:center;gap:6px"><i class="fas fa-exclamation-circle"></i> <span></span></div>
+            <button class="btn btn-primary" onclick="sendOTP()" style="width:100%;margin-top:18px;padding:14px;font-size:.95rem">
+              <i class="fas fa-paper-plane"></i> Send OTP
+            </button>
+          </div>
+
+          <!-- STEP 2: Enter OTP -->
+          <div id="modal-step-otp" style="display:none">
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start">
+              <i class="fas fa-check-circle" style="color:var(--success);font-size:1.1rem;margin-top:1px;flex-shrink:0"></i>
+              <div>
+                <p style="font-weight:600;color:#166534;font-size:.88rem;margin:0 0 2px">OTP sent to <span id="otp-sent-to" style="font-family:monospace"></span></p>
+                <p style="color:#15803d;font-size:.8rem;margin:0">Valid for 10 minutes</p>
+                <span style="display:inline-block;margin-top:6px;background:#f3f4f6;border-radius:20px;padding:3px 10px;font-size:.76rem;color:#6b7280">
+                  <i class="fas fa-flask"></i> Demo OTP: <strong id="demo-otp-display" style="color:var(--primary);letter-spacing:3px"></strong>
+                </span>
+              </div>
+            </div>
+
+            <label style="font-weight:600;font-size:.88rem;display:block;margin-bottom:12px;color:var(--dark)">Enter 6-Digit OTP</label>
+
+            <!-- Single hidden input + visual boxes overlay -->
+            <div style="position:relative;display:inline-block;width:100%" id="otp-boxes-wrap">
+              <!-- Hidden real input that captures all typing -->
+              <input type="tel" id="otp-hidden-input" maxlength="6" autocomplete="one-time-code"
+                style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;font-size:16px"
+                oninput="syncOTPBoxes(this.value)" onkeydown="otpKeyDown(event)" onkeypress="if(event.key==='Enter') verifyOTP()">
+              <!-- Visual display boxes -->
+              <div style="display:flex;gap:10px;justify-content:center;pointer-events:none" id="otp-visual-boxes">
+                <div class="otp-vbox" id="vbox-0">·</div>
+                <div class="otp-vbox" id="vbox-1">·</div>
+                <div class="otp-vbox" id="vbox-2">·</div>
+                <div class="otp-vbox" id="vbox-3">·</div>
+                <div class="otp-vbox" id="vbox-4">·</div>
+                <div class="otp-vbox" id="vbox-5">·</div>
+              </div>
+            </div>
+
+            <div id="otp-verify-error" style="display:none;color:var(--danger);font-size:.83rem;margin-top:12px;display:flex;align-items:center;gap:6px"><i class="fas fa-times-circle"></i> <span></span></div>
+
+            <button class="btn btn-secondary" onclick="verifyOTP()" style="width:100%;margin-top:18px;padding:14px;font-size:.95rem" id="btn-verify-otp">
+              <i class="fas fa-shield-alt"></i> Verify OTP
+            </button>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+              <div style="font-size:.82rem;color:var(--gray);display:flex;align-items:center;gap:6px">
+                <button id="btn-resend-otp" onclick="resendOTP()" style="background:none;border:none;cursor:pointer;font-weight:600;font-size:.82rem;color:var(--primary);padding:0" disabled>
+                  <i class="fas fa-redo"></i> Resend
+                </button>
+                <span id="resend-timer" style="color:var(--gray)">(30s)</span>
+              </div>
+              <button onclick="resetOTPFlow()" style="background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--gray);padding:0">
+                <i class="fas fa-edit"></i> Change Number
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Success -->
+          <div id="modal-step-success" style="display:none;text-align:center;padding:10px 0 6px">
+            <div style="width:80px;height:80px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:3px solid #86efac">
+              <i class="fas fa-check-circle" style="color:var(--success);font-size:2.5rem"></i>
+            </div>
+            <h3 style="color:var(--success);margin-bottom:8px">Verified! 🎉</h3>
+            <p style="color:var(--gray);font-size:.9rem;margin-bottom:4px">Number <strong id="otp-verified-number" style="color:var(--dark)"></strong></p>
+            <p style="color:var(--gray);font-size:.82rem">has been successfully verified.</p>
+            <button class="btn btn-primary" onclick="closePhoneVerifyModal()" style="margin-top:22px;padding:12px 32px">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- HOSPITAL: APPOINTMENTS -->
+    <div id="h-appointments" class="dash-content">
+      <div class="page-hdr"><h1>Appointments</h1><button class="btn btn-outline btn-sm" id="btn-refresh-happts"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+      <div class="booking-layout">
+        <div class="card booking-form">
+          <h3 style="margin-bottom:18px">Appointment Requests</h3>
+          <div id="h-appt-list"><p style="color:var(--gray)">Loading...</p></div>
+        </div>
+        <div style="width:360px;flex-shrink:0">
+          <!-- Availability Calendar Card -->
+          <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">
+            <div style="background:var(--primary);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+              <button id="h-cal-prev" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem"><i class="fas fa-chevron-left"></i></button>
+              <strong id="h-cal-month" style="font-size:1rem">Month</strong>
+              <button id="h-cal-next" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div style="padding:16px">
+              <!-- Legend -->
+              <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+                <span style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--gray)"><span style="width:10px;height:10px;background:#dcfce7;border-radius:3px;border:1px solid #86efac;display:inline-block"></span>Available</span>
+                <span style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--gray)"><span style="width:10px;height:10px;background:#fef9c3;border-radius:3px;border:1px solid #fde047;display:inline-block"></span>Partial</span>
+                <span style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--gray)"><span style="width:10px;height:10px;background:#fee2e2;border-radius:3px;border:1px solid #fca5a5;display:inline-block"></span>Full</span>
+                <span style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--gray)"><span style="width:10px;height:10px;background:#f1f5f9;border-radius:3px;border:1px solid #cbd5e1;display:inline-block"></span>Closed</span>
+              </div>
+              <div class="cal-grid" id="h-cal-grid"></div>
+            </div>
+          </div>
+          <!-- Time Slots Card -->
+          <div class="card" style="padding:0;overflow:hidden">
+            <div id="h-slots-header" style="padding:14px 16px;border-bottom:1px solid var(--gray-light);background:#f8fafc;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-weight:700;font-size:.9rem"><i class="fas fa-clock" style="color:var(--primary);margin-right:6px"></i>Time Slots</span>
+              <span id="h-slots-date" style="font-size:.78rem;color:var(--gray)">Select a date</span>
+            </div>
+            <div id="h-time-slots" style="padding:14px;display:flex;flex-wrap:wrap;gap:8px;min-height:80px"></div>
+            <div id="h-slots-summary" style="padding:10px 16px;background:#f8fafc;border-top:1px solid var(--gray-light);font-size:.78rem;color:var(--gray);display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="h-queries" class="dash-content">
+      <div class="page-hdr"><h1>Patient Queries</h1><button class="btn btn-outline btn-sm" id="btn-refresh-hqueries"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+      <div style="display:flex;height:620px;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.12);border:1px solid var(--gray-light)">
+        <div style="width:290px;background:#fff;border-right:1px solid var(--gray-light);display:flex;flex-direction:column;flex-shrink:0">
+          <div style="padding:16px 18px;font-weight:700;font-size:.95rem;border-bottom:1px solid var(--gray-light);background:#f8fafc;display:flex;align-items:center;gap:8px">
+            <i class="fas fa-users" style="color:var(--primary)"></i> Patients
+            <span id="h-patient-count" style="margin-left:auto;background:var(--primary);color:#fff;font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:600">5</span>
+          </div>
+          <div id="h-chat-list" style="overflow-y:auto;flex:1"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+          <div id="h-chat-hdr" style="padding:16px 20px;background:#fff;border-bottom:1px solid var(--gray-light);display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px rgba(0,0,0,.04)">
+            <div style="width:42px;height:42px;background:var(--gray-light);color:var(--gray);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem">P</div>
+            <div><strong style="font-size:1rem">Select a patient</strong><div style="font-size:.8rem;color:var(--gray)">Choose from the left panel</div></div>
+          </div>
+          <div id="h-chat-msgs" style="flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:#f8fafc">
+            <div id="h-chat-placeholder" style="text-align:center;color:var(--gray);font-size:.88rem;margin:auto">
+              <i class="fas fa-comment-medical" style="font-size:2.5rem;opacity:.25;display:block;margin-bottom:12px"></i>
+              Select a patient to view their conversation
+            </div>
+          </div>
+          <div style="padding:14px 18px;background:#fff;border-top:1px solid var(--gray-light);display:flex;gap:10px;align-items:center">
+            <input type="text" id="h-chat-input" placeholder="Type your reply to the patient..." disabled
+              style="flex:1;padding:12px 16px;border:2px solid var(--gray-light);border-radius:24px;font-size:.9rem;outline:none;background:#f8fafc">
+            <button id="h-btn-send" disabled
+              style="width:44px;height:44px;background:var(--primary);color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;opacity:.5">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="h-profile" class="dash-content">
+      <div class="page-hdr"><h1>Edit Profile</h1></div>
+      <div class="card" style="max-width:780px">
+        <div class="profile-section">
+          <div class="profile-photo" id="h-profile-photo">H</div>
+          <div><h3>Hospital Profile</h3><p style="color:var(--gray)">Update your hospital information</p></div>
+        </div>
+        <form id="form-hprofile">
+          <div class="form-group"><label>Hospital Name</label><input type="text" id="hp-name" class="form-control"></div>
+          <div class="form-group"><label>Address</label><input type="text" id="hp-addr" class="form-control"></div>
+          <div class="form-group"><label>Contact</label><input type="text" id="hp-phone" class="form-control"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="hp-email" class="form-control"></div>
+          <div class="form-group"><label>Description</label><textarea id="hp-desc" class="form-control" rows="3" placeholder="Describe your hospital..."></textarea></div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+  <nav class="bottom-nav">
+    <ul class="bnav-list">
+      <li><button class="bnav-item active" data-tab="h-verification" data-portal="hospital"><i class="fas fa-clipboard-check bnav-icon"></i><span class="bnav-text">Verification</span></button></li>
+      <li><button class="bnav-item" data-tab="h-appointments" data-portal="hospital"><i class="fas fa-calendar-check bnav-icon"></i><span class="bnav-text">Appointments</span></button></li>
+      <li><button class="bnav-item" data-tab="h-queries" data-portal="hospital"><i class="fas fa-question-circle bnav-icon"></i><span class="bnav-text">Queries</span></button></li>
+      <li><button class="bnav-item" data-tab="h-profile" data-portal="hospital"><i class="fas fa-user-edit bnav-icon"></i><span class="bnav-text">Profile</span></button></li>
+    </ul>
+  </nav>
+</section>
+
+<!-- PATIENT DASHBOARD -->
+<section id="page-patient" class="hidden">
+  <div class="container dash-wrap">
+
+    <div id="p-hospitals" class="dash-content active">
+      <div class="page-hdr">
+        <h1>Find Verified Hospitals</h1>
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="p-search" placeholder="Search hospitals..."></div>
+      </div>
+      <div class="hosp-grid" id="p-hosp-grid"><p style="color:var(--gray)">Loading hospitals...</p></div>
+    </div>
+
+    <div id="p-booking" class="dash-content">
+      <div class="page-hdr">
+        <h1>Book Appointment</h1>
+        <button class="btn btn-outline btn-sm" id="btn-my-appts"><i class="fas fa-list"></i> My Appointments</button>
+      </div>
+      <div id="my-appts-panel" class="hidden card" style="margin-bottom:24px">
+        <h3 style="margin-bottom:14px">My Appointments</h3>
+        <div id="my-appts-list"></div>
+      </div>
+      <div class="booking-layout">
+        <div class="card booking-form">
+          <div class="form-group"><label>Select Hospital</label><select id="book-hosp" class="form-control"><option value="">-- Select Hospital --</option></select></div>
+          <div class="form-group"><label>Purpose of Visit</label>
+            <select id="book-purpose" class="form-control">
+              <option value="consultation">General Consultation</option><option value="followup">Follow-up Visit</option>
+              <option value="emergency">Emergency</option><option value="test">Medical Test</option><option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Additional Notes</label><textarea id="book-notes" class="form-control" rows="3" placeholder="Any symptoms or special requirements"></textarea></div>
+          <button class="btn btn-primary" id="btn-confirm-book"><i class="fas fa-calendar-check"></i> Confirm Booking</button>
+        </div>
+        <div class="cal-wrap">
+          <div class="cal-hdr">
+            <button class="btn btn-outline btn-sm" id="p-cal-prev"><i class="fas fa-chevron-left"></i></button>
+            <strong id="p-cal-month">Month</strong>
+            <button class="btn btn-outline btn-sm" id="p-cal-next"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="cal-grid" id="p-cal-grid"></div>
+          <p style="font-weight:600;margin-bottom:10px">Available Slots</p>
+          <div class="time-slots" id="p-time-slots"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p-queries" class="dash-content">
+      <div class="page-hdr"><h1>Ask a Query</h1></div>
+      <div class="chat-wrap">
+        <div class="chat-sidebar">
+          <div style="padding:14px;font-weight:600;border-bottom:1px solid var(--gray-light)">Hospitals</div>
+          <div id="p-chat-list"></div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-hdr" id="p-chat-hdr">
+            <div class="avatar" style="background:var(--primary)">H</div>
+            <div><strong>Select a hospital</strong><div style="font-size:.82rem;color:var(--gray)">Choose from the left</div></div>
+          </div>
+          <div class="chat-msgs" id="p-chat-msgs"></div>
+          <div class="chat-input-row">
+            <input type="text" id="p-chat-input" placeholder="Type your message..." disabled>
+            <button class="btn btn-primary btn-sm" id="btn-send-msg" disabled><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p-medicine" class="dash-content">
+      <div class="page-hdr">
+        <h1>Medicine Booking</h1>
+        <button class="btn btn-outline btn-sm" id="btn-med-reset"><i class="fas fa-redo"></i> New Order</button>
+      </div>
+      <div class="med-card">
+        <div class="med-hdr">
+          <div class="med-brand">💊</div>
+          <div><strong style="font-size:1.2rem;color:#0b2b3f">MedChat</strong></div>
+          <span style="margin-left:auto;background:#d0ebff;padding:3px 12px;border-radius:32px;font-size:.8rem;font-weight:600">Rx</span>
+        </div>
+        <div class="med-msgs" id="med-msgs">
+          <div class="med-bubble">👋 Click <strong>+</strong> below to upload a prescription, or type medicine names directly.</div>
+          <div class="med-meta">MedBot · just now</div>
+        </div>
+        <div class="med-bar">
+          <div class="med-plus-wrap">
+            <button class="med-plus" id="med-plus">+</button>
+            <div class="med-menu" id="med-menu">
+              <button class="med-menu-btn" id="med-camera">📷 Camera</button>
+              <button class="med-menu-btn" id="med-photos">🖼️ Photos</button>
+              <button class="med-menu-btn" id="med-files">📁 Files</button>
+            </div>
+          </div>
+          <input type="text" class="med-input" id="med-text" placeholder="Type medicine name...">
+          <button class="med-send" id="med-send">➤</button>
+        </div>
+      </div>
+      <input type="file" id="inp-camera" accept="image/*" capture="environment" style="display:none">
+      <input type="file" id="inp-photos" accept="image/*" style="display:none">
+      <input type="file" id="inp-files" accept="image/*,application/pdf" style="display:none">
+    </div>
+
+    <div id="p-profile" class="dash-content">
+      <div class="page-hdr"><h1>Edit Profile</h1></div>
+      <div class="card" style="max-width:780px">
+        <div class="profile-section">
+          <div class="profile-photo" id="p-profile-photo">P</div>
+          <div><h3>Patient Profile</h3><p style="color:var(--gray)">Keep your info up to date</p></div>
+        </div>
+        <form id="form-pprofile">
+          <div class="form-group"><label>Full Name</label><input type="text" id="pp-name" class="form-control"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="pp-email" class="form-control" readonly style="background:#f8fafc"></div>
+          <div class="form-group"><label>Phone</label><input type="text" id="pp-phone" class="form-control"></div>
+          <div class="form-group"><label>Date of Birth</label><input type="date" id="pp-dob" class="form-control"></div>
+          <div class="form-group"><label>Blood Group</label>
+            <select id="pp-blood" class="form-control">
+              <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+              <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Address</label><textarea id="pp-addr" class="form-control" rows="2"></textarea></div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+  <nav class="bottom-nav">
+    <ul class="bnav-list">
+      <li><button class="bnav-item active" data-tab="p-hospitals" data-portal="patient"><i class="fas fa-hospital bnav-icon"></i><span class="bnav-text">Hospitals</span></button></li>
+      <li><button class="bnav-item" data-tab="p-booking" data-portal="patient"><i class="fas fa-calendar-plus bnav-icon"></i><span class="bnav-text">Book</span></button></li>
+      <li><button class="bnav-item" data-tab="p-queries" data-portal="patient"><i class="fas fa-comments bnav-icon"></i><span class="bnav-text">Queries</span></button></li>
+      <li><button class="bnav-item" data-tab="p-medicine" data-portal="patient"><i class="fas fa-pills bnav-icon"></i><span class="bnav-text">Medicine</span></button></li>
+      <li><button class="bnav-item" data-tab="p-profile" data-portal="patient"><i class="fas fa-user-edit bnav-icon"></i><span class="bnav-text">Profile</span></button></li>
+    </ul>
+  </nav>
+</section>
+
+</main>
+
+<!-- MAP MODAL -->
+<div id="map-modal" style="display:none;position:fixed;inset:0;z-index:99990;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
+  <div id="map-modal-sheet" style="background:#fff;width:100%;max-width:680px;border-radius:24px 24px 0 0;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUp .3s ease">
+    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #e2e8f0;position:relative;z-index:2;background:#fff">
+      <button id="map-back-btn" style="background:#f1f5f9;border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#1e293b;transition:background .2s"><i class="fas fa-arrow-left"></i></button>
+      <div style="flex:1;min-width:0">
+        <div id="map-modal-name" style="font-weight:700;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        <div id="map-modal-addr" style="font-size:.78rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+        <a id="map-modal-directions" href="#" target="_blank" rel="noopener" style="background:#16a34a;color:#fff;border:none;padding:7px 13px;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><i class="fas fa-directions"></i> View Directions</a>
+        <a id="map-modal-link" href="#" target="_blank" rel="noopener" style="background:#2563eb;color:#fff;border:none;padding:7px 13px;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><i class="fas fa-external-link-alt"></i> Open Maps</a>
+      </div>
+    </div>
+    <div style="position:relative;width:100%;height:60vh;min-height:300px;max-height:520px">
+      <iframe id="map-modal-iframe" src="" style="width:100%;height:100%;border:none" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</div>
+
+<footer id="main-footer" class="hidden">
+  <div class="container">
+    <div class="logo" style="color:#fff;justify-content:center;margin-bottom:14px"><i class="fas fa-hospital"></i> Veracare</div>
+    <p>Hospital & Patient Portal</p>
+    <p style="margin-top:8px;color:#94a3b8;font-size:.85rem">© 2024 Veracare. All rights reserved.</p>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, collection, query, where, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+function sortDesc(docs){ return docs.sort((a,b)=>{ const at=a.data().createdAt?.toMillis?.()??0; const bt=b.data().createdAt?.toMillis?.()??0; return bt-at; }); }
+function sortAsc(docs){ return docs.sort((a,b)=>{ const at=a.data().createdAt?.toMillis?.()??0; const bt=b.data().createdAt?.toMillis?.()??0; return at-bt; }); }
+
+const app = initializeApp({
+  apiKey: "AIzaSyAicp9bxw9v0XlGKPcpLwzhHYdjcmCacT0",
+  authDomain: "suremediq-8649d.firebaseapp.com",
+  projectId: "suremediq-8649d",
+  storageBucket: "suremediq-8649d.firebasestorage.app",
+  messagingSenderId: "626863653024",
+  appId: "1:626863653024:web:72297ff2f31ec23e6689c5"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let CU = null, UD = null;
+let selDate = new Date(), selSlot = null;
+let chatHospId = null, chatUnsub = null;
+let allHospitals = [];
+
+/* HELPERS */
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+function spin(on) { document.getElementById('spinner').style.display = on ? 'flex' : 'none'; }
+
+function showPage(id) {
+  ['page-landing','page-auth','page-hospital','page-patient'].forEach(p => document.getElementById(p).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  const showHeader = (id === 'page-hospital' || id === 'page-patient');
+  document.getElementById('main-header').classList.toggle('hidden', !showHeader);
+  document.getElementById('main-footer').classList.toggle('hidden', !showHeader);
+}
+
+function switchTab(portal, tabId) {
+  const section = portal === 'hospital' ? 'page-hospital' : 'page-patient';
+  document.querySelectorAll(`#${section} .dash-content`).forEach(d => d.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.querySelectorAll(`#${section} .bnav-item`).forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+  if (tabId === 'h-appointments') { renderHospCal(); loadHospAppts(); }
+  if (tabId === 'h-queries')      loadHospQueries();
+  if (tabId === 'h-verification') prefillVerification();
+  if (tabId === 'h-profile')      prefillHospProfile();
+  if (tabId === 'p-hospitals')    loadHospitals();
+  if (tabId === 'p-booking')      { renderCal('p-cal-grid','p-cal-month','p-time-slots'); fillHospSelect(); }
+  if (tabId === 'p-queries')      loadChatList();
+  if (tabId === 'p-medicine')     medReset();
+  if (tabId === 'p-profile')      prefillPatProfile();
+}
+
+document.querySelectorAll('.bnav-item').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.portal, btn.dataset.tab));
+});
+
+/* AUTH TABS */
+document.getElementById('tab-login').addEventListener('click', () => {
+  document.getElementById('tab-login').classList.add('active'); document.getElementById('tab-signup').classList.remove('active');
+  document.getElementById('form-login').classList.add('active'); document.getElementById('form-signup').classList.remove('active');
+});
+document.getElementById('tab-signup').addEventListener('click', () => {
+  document.getElementById('tab-signup').classList.add('active'); document.getElementById('tab-login').classList.remove('active');
+  document.getElementById('form-signup').classList.add('active'); document.getElementById('form-login').classList.remove('active');
+});
+document.getElementById('su-role').addEventListener('change', function() {
+  document.getElementById('su-hosp-fields').classList.toggle('hidden', this.value !== 'hospital');
+  document.getElementById('su-pat-fields').classList.toggle('hidden', this.value !== 'patient');
+});
+
+/* SIGNUP */
+document.getElementById('form-signup').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('su-email').value.trim();
+  const password = document.getElementById('su-password').value;
+  const role = document.getElementById('su-role').value;
+  const name = document.getElementById('su-name').value.trim();
+  if (!role) { toast('Please select a role', 'error'); return; }
+  spin(true);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = cred.user.uid;
+    let data = { name, email, role, createdAt: serverTimestamp() };
+    if (role === 'hospital') {
+      data.hospitalName = document.getElementById('su-hname').value.trim();
+      data.address = document.getElementById('su-haddr').value.trim();
+      data.specialties = document.getElementById('su-hspec').value.trim();
+      data.contact = document.getElementById('su-hphone').value.trim();
+      data.hours = document.getElementById('su-hhours').value.trim();
+      data.verified = false; data.verificationRequested = false; data.description = '';
+    } else {
+      data.phone = document.getElementById('su-pphone').value.trim();
+      data.dob = ''; data.blood = 'O+'; data.address = '';
+    }
+    await setDoc(doc(db, 'users', uid), data);
+    toast('Account created! Welcome 🎉', 'success');
+    e.target.reset();
+    document.getElementById('su-hosp-fields').classList.add('hidden');
+    document.getElementById('su-pat-fields').classList.add('hidden');
+  } catch (err) { toast(err.message, 'error'); }
+  spin(false);
+});
+
+/* LOGIN */
+document.getElementById('form-login').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const role = document.getElementById('login-role').value;
+  if (!role) { toast('Please select your role', 'error'); return; }
+  spin(true);
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const snap = await getDoc(doc(db, 'users', cred.user.uid));
+    if (!snap.exists()) { await signOut(auth); toast('Account not found.', 'error'); spin(false); return; }
+    if (snap.data().role !== role) { await signOut(auth); toast(`This account is a ${snap.data().role}, not ${role}.`, 'error'); spin(false); return; }
+  } catch (err) { toast('Wrong email or password.', 'error'); }
+  spin(false);
+});
+
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  if (chatUnsub) chatUnsub();
+  if (hospChatUnsub) hospChatUnsub();
+  await signOut(auth); toast('Logged out', 'info');
+});
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    spin(true);
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        CU = user; UD = snap.data(); updateHeader();
+        if (UD.role === 'hospital') { showPage('page-hospital'); switchTab('hospital', 'h-verification'); }
+        else { showPage('page-patient'); switchTab('patient', 'p-hospitals'); }
+        toast(`Welcome back, ${UD.hospitalName || UD.name}! 👋`, 'success');
+      }
+    } catch (err) { console.error(err); }
+    spin(false);
+  } else { CU = null; UD = null; showPage('page-landing'); }
+});
+
+function updateHeader() {
+  if (!UD) return;
+  const name = UD.hospitalName || UD.name || 'User';
+  document.getElementById('hdr-name').textContent = name;
+  document.getElementById('hdr-role').textContent = UD.role === 'hospital' ? 'Hospital' : 'Patient';
+  document.getElementById('hdr-initial').textContent = name.charAt(0).toUpperCase();
+  if (UD.role === 'hospital') {
+    document.getElementById('h-profile-photo').textContent = name.charAt(0).toUpperCase();
+    const badge = document.getElementById('h-verify-badge');
+    if (UD.verified) { badge.className = 'status verified'; badge.innerHTML = '<i class="fas fa-check-circle"></i> Verified'; }
+    else { badge.className = 'status pending'; badge.innerHTML = '<i class="fas fa-clock"></i> Pending'; }
+  } else { document.getElementById('p-profile-photo').textContent = name.charAt(0).toUpperCase(); }
+}
+
+/* HOSPITAL: VERIFICATION */
+function prefillVerification() {
+  if (!UD) return;
+  document.getElementById('hd-name').value = UD.hospitalName || '';
+  document.getElementById('hd-addr').value = UD.address || '';
+  document.getElementById('hd-phone').value = UD.contact || '';
+  document.getElementById('hd-email').value = UD.email || '';
+  document.getElementById('hd-spec').value = UD.specialties || '';
+  document.getElementById('hd-hours').value = UD.hours || '';
+  const infoBox = document.getElementById('verify-info-box');
+  if (UD.verified) {
+    infoBox.style.background = 'rgba(5,150,105,.08)';
+    infoBox.style.color = 'var(--success)';
+    infoBox.innerHTML = '<i class="fas fa-check-circle"></i> Your hospital is <strong>verified</strong> and visible to patients!';
+  }
+}
+document.getElementById('form-hdetails').addEventListener('submit', async e => {
+  e.preventDefault(); spin(true);
+  try {
+    const u = {
+      hospitalName: document.getElementById('hd-name').value.trim(),
+      address: document.getElementById('hd-addr').value.trim(),
+      contact: document.getElementById('hd-phone').value.trim(),
+      email: document.getElementById('hd-email').value.trim(),
+      specialties: document.getElementById('hd-spec').value.trim(),
+      hours: document.getElementById('hd-hours').value.trim(),
+    };
+    await updateDoc(doc(db, 'users', CU.uid), u);
+    UD = { ...UD, ...u }; updateHeader(); toast('Details saved ✅', 'success');
+  } catch (err) { toast('Error saving', 'error'); }
+  spin(false);
+});
+
+
+
+/* HOSPITAL: PROFILE */
+function prefillHospProfile() {
+  if (!UD) return;
+  document.getElementById('hp-name').value = UD.hospitalName || '';
+  document.getElementById('hp-addr').value = UD.address || '';
+  document.getElementById('hp-phone').value = UD.contact || '';
+  document.getElementById('hp-email').value = UD.email || '';
+  document.getElementById('hp-desc').value = UD.description || '';
+}
+document.getElementById('form-hprofile').addEventListener('submit', async e => {
+  e.preventDefault(); spin(true);
+  try {
+    const u = {
+      hospitalName: document.getElementById('hp-name').value.trim(),
+      address: document.getElementById('hp-addr').value.trim(),
+      contact: document.getElementById('hp-phone').value.trim(),
+      email: document.getElementById('hp-email').value.trim(),
+      description: document.getElementById('hp-desc').value.trim(),
+    };
+    await updateDoc(doc(db, 'users', CU.uid), u);
+    UD = { ...UD, ...u }; updateHeader(); toast('Profile updated ✅', 'success');
+  } catch (err) { toast('Error saving', 'error'); }
+  spin(false);
+});
+
+/* =====================================================================
+   HOSPITAL: APPOINTMENTS — Demo data + real Firestore data merged
+   ===================================================================== */
+const DEMO_APPOINTMENTS = [
+  { id: 'demo1', patientName: 'Aarav Sharma', purpose: 'General Consultation', date: '2025-02-26', timeSlot: '10:00 AM', notes: 'Fever and cold since 3 days', patientEmail: 'aarav.sharma@email.com', status: 'confirmed' },
+  { id: 'demo2', patientName: 'Priya Mehta', purpose: 'Cardiology Check-up', date: '2025-02-26', timeSlot: '11:30 AM', notes: 'Routine heart check-up', patientEmail: 'priya.mehta@email.com', status: 'confirmed' },
+  { id: 'demo3', patientName: 'Rahul Verma', purpose: 'Orthopaedic Consultation', date: '2025-02-27', timeSlot: '09:00 AM', notes: 'Knee pain for 2 weeks', patientEmail: 'rahul.verma@email.com', status: 'pending' },
+  { id: 'demo4', patientName: 'Sneha Patil', purpose: 'Dermatology', date: '2025-02-27', timeSlot: '02:00 PM', notes: 'Skin rash on arms', patientEmail: 'sneha.patil@email.com', status: 'pending' },
+  { id: 'demo5', patientName: 'Karan Joshi', purpose: 'Paediatrics', date: '2025-02-28', timeSlot: '10:30 AM', notes: 'Child vaccination follow-up', patientEmail: 'karan.joshi@email.com', status: 'pending' },
+];
+
+async function loadHospAppts() {
+  const el = document.getElementById('h-appt-list');
+  el.innerHTML = '<p style="color:var(--gray)">Loading...</p>';
+
+  // Build list from demo data + real Firestore data
+  let appointments = [...DEMO_APPOINTMENTS];
+  try {
+    const raw = await getDocs(collection(db, 'appointments'));
+    const realSnap = raw.docs.filter(d => d.data().hospitalId === CU.uid);
+    realSnap.forEach(d => appointments.push({ id: d.id, ...d.data(), _real: true }));
+  } catch (e) { /* Firestore unavailable — show demo data only */ }
+
+  if (!appointments.length) { el.innerHTML = '<p style="color:var(--gray)">No appointment requests yet.</p>'; return; }
+
+  el.innerHTML = '';
+  appointments.forEach(a => {
+    const aid = a.id;
+    const isDemo = !a._real;
+    const div = document.createElement('div');
+    div.className = 'appt-item';
+    const statusClass = a.status === 'confirmed' ? 'confirmed' : a.status === 'rejected' ? 'rejected' : a.status === 'completed' ? 'completed' : 'pending';
+    div.innerHTML = `
+      <div>
+        <strong>${a.patientName || 'Patient'}</strong>
+        <div style="color:var(--gray);font-size:.85rem">${a.purpose} · ${a.date || ''} at ${a.timeSlot || ''}</div>
+        ${a.notes ? `<div style="color:var(--gray);font-size:.82rem;margin-top:4px">📝 ${a.notes}</div>` : ''}
+        ${a.patientEmail ? `<div style="color:var(--gray);font-size:.8rem">📧 ${a.patientEmail}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <span class="status ${statusClass}">${a.status || 'pending'}</span>
+        ${a.status === 'pending' || !a.status ? `
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm appt-confirm" data-id="${aid}" data-demo="${isDemo}"><i class="fas fa-check"></i> Confirm</button>
+            <button class="btn btn-danger btn-sm appt-reject" data-id="${aid}" data-demo="${isDemo}"><i class="fas fa-times"></i> Reject</button>
+          </div>` :
+        a.status === 'confirmed' ? `<button class="btn btn-warning btn-sm appt-complete" data-id="${aid}" data-demo="${isDemo}" style="font-size:.8rem"><i class="fas fa-flag-checkered"></i> Mark Done</button>` : ''}
+      </div>`;
+    el.appendChild(div);
+  });
+
+  el.querySelectorAll('.appt-confirm').forEach(b => {
+    b.addEventListener('click', async () => {
+      if (b.dataset.demo === 'true') {
+        const demo = DEMO_APPOINTMENTS.find(d => d.id === b.dataset.id);
+        if (demo) demo.status = 'confirmed';
+        loadHospAppts(); toast('Appointment confirmed ✅', 'success'); return;
+      }
+      spin(true);
+      try { await updateDoc(doc(db, 'appointments', b.dataset.id), { status: 'confirmed' }); toast('Appointment confirmed ✅', 'success'); loadHospAppts(); }
+      catch (e) { toast('Error', 'error'); } spin(false);
+    });
+  });
+  el.querySelectorAll('.appt-reject').forEach(b => {
+    b.addEventListener('click', async () => {
+      if (b.dataset.demo === 'true') {
+        const demo = DEMO_APPOINTMENTS.find(d => d.id === b.dataset.id);
+        if (demo) demo.status = 'rejected';
+        loadHospAppts(); toast('Appointment rejected', 'info'); return;
+      }
+      spin(true);
+      try { await updateDoc(doc(db, 'appointments', b.dataset.id), { status: 'rejected' }); toast('Appointment rejected', 'info'); loadHospAppts(); }
+      catch (e) { toast('Error', 'error'); } spin(false);
+    });
+  });
+  el.querySelectorAll('.appt-complete').forEach(b => {
+    b.addEventListener('click', async () => {
+      if (b.dataset.demo === 'true') {
+        const demo = DEMO_APPOINTMENTS.find(d => d.id === b.dataset.id);
+        if (demo) demo.status = 'completed';
+        loadHospAppts(); toast('Marked as completed ✅', 'success'); return;
+      }
+      spin(true);
+      try { await updateDoc(doc(db, 'appointments', b.dataset.id), { status: 'completed' }); toast('Marked as completed ✅', 'success'); loadHospAppts(); }
+      catch (e) { toast('Error', 'error'); } spin(false);
+    });
+  });
+}
+document.getElementById('btn-refresh-happts').addEventListener('click', loadHospAppts);
+
+/* =====================================================================
+   HOSPITAL: QUERIES — Real-time chat
+   ===================================================================== */
+let hospChatPatientId = null, hospChatUnsub = null;
+
+/* ── Demo patients & their conversations ── */
+const DEMO_PATIENTS = [
+  {
+    id: 'demo_priya', name: 'Priya Chaudhary',
+    messages: [
+      { from: 'patient', text: 'Hello, I would like to know more about the Gastroenterology department. I have been experiencing persistent acidity and bloating for the past month.', time: '10:05 AM' },
+      { from: 'hospital', text: 'Hello Priya! Thank you for reaching out to Sir Ganga Ram Hospital. Our Gastroenterology department is highly specialised with experienced consultants. Persistent acidity and bloating should definitely be evaluated. How long have you had these symptoms?', time: '10:12 AM' },
+      { from: 'patient', text: 'About 4 weeks now. It gets worse after meals especially at night. I have also had some mild nausea.', time: '10:15 AM' },
+      { from: 'hospital', text: 'That pattern could indicate acid reflux (GERD) or gastritis. We would recommend an upper endoscopy for a definitive diagnosis. Our GI team is available Monday to Saturday, 9AM–4PM. Shall we book a consultation for you?', time: '10:18 AM' },
+      { from: 'patient', text: 'Yes please. Is there anything I should avoid eating before the appointment?', time: '10:20 AM' },
+      { from: 'hospital', text: 'For the consultation itself, no specific dietary restrictions are needed. However if an endoscopy is scheduled, you will need to fast for 6–8 hours beforehand. Our team will guide you fully at the time of booking. Your slot is noted — we will confirm shortly! 🙏', time: '10:24 AM' },
+    ]
+  },
+  {
+    id: 'demo_pat1', name: 'Aarav Sharma',
+    messages: [
+      { from: 'patient', text: 'Hello, I have been experiencing high fever and cold for the past 3 days. Should I come in?', time: '9:05 AM' },
+      { from: 'hospital', text: 'Hello Aarav! Yes, it would be best to visit us for a proper check-up. Our OPD is open from 9 AM to 5 PM. Please bring your previous medical records if any.', time: '9:18 AM' },
+      { from: 'patient', text: 'Thank you! Can I come tomorrow at 10 AM?', time: '9:20 AM' },
+      { from: 'hospital', text: 'Absolutely, your appointment is noted for tomorrow 10 AM. Please register at the front desk on arrival. 😊', time: '9:25 AM' },
+    ]
+  },
+  {
+    id: 'demo_pat2', name: 'Priya Mehta',
+    messages: [
+      { from: 'patient', text: 'Hi, I recently had a heart check-up elsewhere and my ECG showed some irregularities. Should I be worried?', time: '11:00 AM' },
+      { from: 'hospital', text: 'Hi Priya, ECG irregularities can have various causes. We recommend visiting our Cardiology department for a detailed evaluation. Please bring your ECG report.', time: '11:10 AM' },
+      { from: 'patient', text: 'Okay. Are your cardiologists available on weekends?', time: '11:13 AM' },
+      { from: 'hospital', text: 'Yes, we have cardiologists available on Saturday from 10 AM to 2 PM. Would you like to book a slot?', time: '11:17 AM' },
+      { from: 'patient', text: 'Yes please, Saturday morning would be great!', time: '11:19 AM' },
+      { from: 'hospital', text: 'Noted! Your slot is confirmed for Saturday 11:30 AM. See you then! 🙏', time: '11:22 AM' },
+    ]
+  },
+  {
+    id: 'demo_pat3', name: 'Rahul Verma',
+    messages: [
+      { from: 'patient', text: 'I have had knee pain for 2 weeks now. It gets worse while climbing stairs. What should I do?', time: '2:30 PM' },
+      { from: 'hospital', text: 'Hello Rahul! Persistent knee pain needs proper orthopaedic evaluation. We suggest avoiding heavy activity until then. Have you had any injury recently?', time: '2:45 PM' },
+      { from: 'patient', text: 'No injury, it just started gradually. I am a bit overweight too.', time: '2:47 PM' },
+      { from: 'hospital', text: 'That could be a contributing factor. Our orthopaedic specialist can advise on both treatment and a suitable exercise plan. Please book an appointment at your earliest convenience.', time: '2:52 PM' },
+    ]
+  },
+  {
+    id: 'demo_pat4', name: 'Sneha Patil',
+    messages: [
+      { from: 'patient', text: 'Good morning! I have developed a rash on both arms since yesterday. It is itchy and spreading.', time: '8:50 AM' },
+      { from: 'hospital', text: 'Good morning Sneha! Please avoid scratching the area and do not apply any cream without a prescription. Can you share more details — any new soap, food, or fabric you used recently?', time: '9:00 AM' },
+      { from: 'patient', text: 'I did try a new detergent two days back!', time: '9:02 AM' },
+      { from: 'hospital', text: 'That could likely be a contact dermatitis reaction. Please discontinue use of that detergent and visit our Dermatology OPD today if possible. We will prescribe the right antihistamine.', time: '9:08 AM' },
+      { from: 'patient', text: 'Thank you so much! I will come this afternoon.', time: '9:10 AM' },
+    ]
+  },
+  {
+    id: 'demo_pat5', name: 'Karan Joshi',
+    messages: [
+      { from: 'patient', text: 'Hi, my 2-year-old missed the 18-month vaccination. Is it too late to get it now?', time: '10:15 AM' },
+      { from: 'hospital', text: 'Hi Karan! It is not too late — catch-up vaccinations are completely normal. Our Paediatrics department can assess which vaccines are due and administer them safely.', time: '10:25 AM' },
+      { from: 'patient', text: 'That is a relief! Do we need to fast before the vaccination?', time: '10:27 AM' },
+      { from: 'hospital', text: 'No fasting is required. Just ensure the child is healthy on the day of the visit with no fever. Please carry the immunisation card.', time: '10:30 AM' },
+    ]
+  },
+];
+
+let activeDemoPatientId = null;
+const demoLocalMessages = {};
+
+async function loadHospQueries() {
+  const listEl = document.getElementById('h-chat-list');
+  listEl.innerHTML = '';
+
+  DEMO_PATIENTS.forEach((p, idx) => {
+    const lastMsg = p.messages[p.messages.length - 1];
+    const isHosp = lastMsg.from === 'hospital';
+    const item = document.createElement('div');
+    item.dataset.pid = p.id;
+    item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--gray-light);transition:background .15s';
+    item.innerHTML = `
+      <div style="width:40px;height:40px;background:var(--patient);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0">${p.name.charAt(0)}</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-weight:600;font-size:.9rem;margin-bottom:2px">${p.name}</div>
+        <div style="font-size:.76rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${isHosp ? '🏥 ' : ''}${lastMsg.text}</div>
+      </div>`;
+    item.addEventListener('mouseenter', () => { if (!item.classList.contains('hq-active')) item.style.background = '#f0f9ff'; });
+    item.addEventListener('mouseleave', () => { if (!item.classList.contains('hq-active')) item.style.background = ''; });
+    item.addEventListener('click', () => openHospChat(p.id, p.name, null, true));
+    listEl.appendChild(item);
+    if (idx === 0) setTimeout(() => item.click(), 100);
+  });
+
+  try {
+    const raw = await getDocs(collection(db, 'chats'));
+    const myChats = raw.docs.filter(d => d.id.includes(CU.uid));
+    for (const chatDoc of myChats) {
+      const chatId = chatDoc.id;
+      const patientId = chatId.split('_').find(id => id !== CU.uid);
+      const msgsSnap = await getDocs(collection(db, 'chats', chatId, 'messages'));
+      if (!msgsSnap.empty) {
+        const sorted = sortDesc(msgsSnap.docs);
+        const lastMsg = sorted[0].data();
+        const patientName = lastMsg.senderRole === 'patient' ? (lastMsg.senderName || 'Patient') : 'Patient';
+        const item = document.createElement('div');
+        item.dataset.pid = patientId; item.dataset.chatid = chatId;
+        item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--gray-light);transition:background .15s';
+        item.innerHTML = `
+          <div style="width:40px;height:40px;background:var(--patient);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0">${patientName.charAt(0)}</div>
+          <div style="min-width:0;flex:1">
+            <div style="font-weight:600;font-size:.9rem;margin-bottom:2px">${patientName}</div>
+            <div style="font-size:.76rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${lastMsg.text || ''}</div>
+          </div>`;
+        item.addEventListener('click', () => openHospChat(patientId, patientName, chatId, false));
+        listEl.appendChild(item);
+      }
+    }
+  } catch (err) { /* Firestore unavailable */ }
+}
+
+function openHospChat(patientId, patientName, chatId, isDemo) {
+  hospChatPatientId = patientId;
+
+  // Highlight active sidebar item
+  document.querySelectorAll('#h-chat-list div[data-pid]').forEach(i => {
+    i.classList.remove('hq-active'); i.style.background = '';
+  });
+  const activeItem = document.querySelector(`#h-chat-list div[data-pid="${patientId}"]`);
+  if (activeItem) { activeItem.classList.add('hq-active'); activeItem.style.background = '#eff6ff'; }
+
+  // Update header
+  const hdr = document.getElementById('h-chat-hdr');
+  hdr.innerHTML = `
+    <div style="width:42px;height:42px;background:var(--patient);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem">${patientName.charAt(0)}</div>
+    <div>
+      <strong style="font-size:1rem">${patientName}</strong>
+      <div style="font-size:.8rem;color:var(--gray);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;background:#10b981;border-radius:50%;display:inline-block"></span> Patient</div>
+    </div>`;
+
+  // Enable input
+  const input = document.getElementById('h-chat-input');
+  const sendBtn = document.getElementById('h-btn-send');
+  input.disabled = false; sendBtn.disabled = false; sendBtn.style.opacity = '1';
+
+  const msgs = document.getElementById('h-chat-msgs');
+
+  if (isDemo) {
+    activeDemoPatientId = patientId;
+    if (hospChatUnsub) { hospChatUnsub(); hospChatUnsub = null; }
+    const demoP = DEMO_PATIENTS.find(p => p.id === patientId);
+
+    const renderDemoMsgs = () => {
+      msgs.innerHTML = '';
+      const allMsgs = [...(demoP ? demoP.messages : []), ...(demoLocalMessages[patientId] || [])];
+      allMsgs.forEach(m => {
+        const isHosp = m.from === 'hospital';
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = `display:flex;flex-direction:column;align-items:${isHosp ? 'flex-end' : 'flex-start'}`;
+        const bubble = document.createElement('div');
+        bubble.style.cssText = `max-width:68%;padding:11px 15px;border-radius:${isHosp ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};font-size:.9rem;line-height:1.5;word-wrap:break-word;${isHosp ? 'background:var(--primary);color:#fff' : 'background:#fff;color:var(--dark);box-shadow:0 1px 4px rgba(0,0,0,.08)'}`;
+        bubble.textContent = m.text;
+        const time = document.createElement('div');
+        time.style.cssText = 'font-size:.72rem;color:var(--gray);margin-top:4px;padding:0 4px';
+        time.textContent = m.time || 'Just now';
+        wrapper.appendChild(bubble); wrapper.appendChild(time);
+        msgs.appendChild(wrapper);
+      });
+      msgs.scrollTop = msgs.scrollHeight;
+    };
+    renderDemoMsgs();
+
+    sendBtn._demoSend = () => {
+      const text = input.value.trim(); if (!text) return;
+      if (!demoLocalMessages[patientId]) demoLocalMessages[patientId] = [];
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      demoLocalMessages[patientId].push({ from: 'hospital', text, time });
+      input.value = '';
+      renderDemoMsgs();
+    };
+  } else {
+    activeDemoPatientId = null;
+    sendBtn._demoSend = null;
+    if (hospChatUnsub) hospChatUnsub();
+    hospChatUnsub = onSnapshot(collection(db, 'chats', chatId, 'messages'), snap => {
+      const sorted = sortAsc(snap.docs);
+      msgs.innerHTML = '';
+      sorted.forEach(d => {
+        const m = d.data();
+        const isHosp = m.senderId === CU.uid;
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = `display:flex;flex-direction:column;align-items:${isHosp ? 'flex-end' : 'flex-start'}`;
+        const bubble = document.createElement('div');
+        bubble.style.cssText = `max-width:68%;padding:11px 15px;border-radius:${isHosp ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};font-size:.9rem;line-height:1.5;word-wrap:break-word;${isHosp ? 'background:var(--primary);color:#fff' : 'background:#fff;color:var(--dark);box-shadow:0 1px 4px rgba(0,0,0,.08)'}`;
+        bubble.textContent = m.text;
+        const time = document.createElement('div');
+        time.style.cssText = 'font-size:.72rem;color:var(--gray);margin-top:4px;padding:0 4px';
+        time.textContent = m.createdAt?.toDate?.().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) || 'Just now';
+        wrapper.appendChild(bubble); wrapper.appendChild(time);
+        msgs.appendChild(wrapper);
+      });
+      msgs.scrollTop = msgs.scrollHeight;
+    });
+  }
+}
+
+async function sendHospMsg() {
+  const input = document.getElementById('h-chat-input');
+  const text = input.value.trim();
+  if (!text || !hospChatPatientId) return;
+  const demoSend = document.getElementById('h-btn-send')._demoSend;
+  if (activeDemoPatientId && demoSend) { demoSend(); return; }
+  const chatId = [CU.uid, hospChatPatientId].sort().join('_');
+  input.value = ''; input.disabled = true;
+  try {
+    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+      text, senderId: CU.uid,
+      senderName: UD.hospitalName || 'Hospital',
+      senderRole: 'hospital',
+      createdAt: serverTimestamp()
+    });
+  } catch (e) { toast('Error sending message', 'error'); console.error(e); }
+  input.disabled = false; input.focus();
+}
+
+document.getElementById('btn-refresh-hqueries').addEventListener('click', loadHospQueries);
+document.getElementById('h-btn-send').addEventListener('click', sendHospMsg);
+document.getElementById('h-chat-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendHospMsg(); });
+
+/* PATIENT: HOSPITALS */
+const MOCK_HOSPITALS = [
+  { id: 'mock_7', hospitalName: 'Ruby Hall Clinic', address: '40, Sassoon Road, Pune - 411001', contact: '+91-20-66455555', hours: '24/7', specialties: 'Cardiology, Nephrology, Oncology, Neurosciences', description: 'One of Pune\'s oldest and most trusted multi-speciality hospitals since 1959.', verified: true, role: 'hospital' },
+  { id: 'mock_8', hospitalName: 'Sahyadri Super Speciality Hospital', address: 'Plot No. 30-C, Karve Road, Pune - 411004', contact: '+91-20-67210000', hours: '24/7', specialties: 'Bone Marrow Transplant, Cancer Care, Neurology', description: 'Maharashtra\'s largest private hospital network headquartered in Pune.', verified: true, role: 'hospital' },
+  { id: 'mock_9', hospitalName: 'Jehangir Hospital', address: '32, Sassoon Road, Pune - 411001', contact: '+91-20-66810000', hours: '24/7', specialties: 'General Surgery, Orthopedics, Gynecology, ICU', description: 'A leading 350-bed multi-speciality hospital in the heart of Pune since 1946.', verified: true, role: 'hospital' },
+  { id: 'mock_10', hospitalName: 'Deenanath Mangeshkar Hospital', address: 'Erandwane, Pune - 411004', contact: '+91-20-49150000', hours: '24/7', specialties: 'Cardiothoracic, Liver Transplant, Pediatrics, Oncology', description: 'One of Pune\'s premier hospitals known for advanced cardiac and transplant care.', verified: true, role: 'hospital' },
+  { id: 'mock_1', hospitalName: 'Apollo Hospitals', address: 'Sarita Vihar, New Delhi - 110076', contact: '+91-11-71021021', hours: '24/7', specialties: 'Cardiology, Neurology, Oncology', description: 'One of India\'s leading hospital chains with world-class facilities.', verified: true, role: 'hospital' },
+  { id: 'mock_2', hospitalName: 'Fortis Memorial Research Institute', address: 'Sector 44, Gurugram, Haryana - 122002', contact: '+91-124-4962200', hours: '24/7', specialties: 'Orthopedics, Transplant, Robotic Surgery', description: 'A quaternary care multi-speciality hospital.', verified: true, role: 'hospital' },
+  { id: 'mock_3', hospitalName: 'AIIMS New Delhi', address: 'Sri Aurobindo Marg, Ansari Nagar, New Delhi - 110029', contact: '+91-11-26588500', hours: 'Mon–Sat 8AM–5PM (Emergency 24/7)', specialties: 'All Specialties, Research & Teaching', description: 'Premier public medical institute and hospital of India.', verified: true, role: 'hospital' },
+  { id: 'mock_4', hospitalName: 'Max Super Speciality Hospital', address: 'Press Enclave Road, Saket, New Delhi - 110017', contact: '+91-11-26515050', hours: '24/7', specialties: 'Cardiac Sciences, Cancer Care, Pediatrics', description: 'Multi-speciality hospital offering comprehensive care.', verified: true, role: 'hospital' },
+  { id: 'mock_5', hospitalName: 'Medanta – The Medicity', address: 'Sector 38, Gurugram, Haryana - 122001', contact: '+91-124-4141414', hours: '24/7', specialties: 'Heart Institute, Liver Transplant, Orthopedics', description: 'A multi-super-speciality institute with over 1600 beds.', verified: true, role: 'hospital' },
+];
+
+async function loadHospitals() {
+  const grid = document.getElementById('p-hosp-grid');
+  grid.innerHTML = '<p style="color:var(--gray)">Loading hospitals...</p>';
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    allHospitals = [];
+    snap.forEach(d => { const dat = d.data(); if (dat.role === 'hospital' && dat.verified) allHospitals.push({ id: d.id, ...dat }); });
+    allHospitals = allHospitals.map(h => ({ ...h, hospitalName: (h.hospitalName || '').replace(/Shri Ganga Ram/gi, 'Sir Ganga Ram'), name: (h.name || '').replace(/Shri Ganga Ram/gi, 'Sir Ganga Ram') }));
+    // Merge mock hospitals (only add if no real ones found, or always show mocks alongside real ones)
+    MOCK_HOSPITALS.forEach(m => { if (!allHospitals.find(h => h.id === m.id)) allHospitals.push(m); });
+    renderHospCards(allHospitals); fillHospSelect();
+  } catch (err) {
+    // On error, show mock hospitals so UI is never empty
+    allHospitals = [...MOCK_HOSPITALS];
+    renderHospCards(allHospitals); fillHospSelect();
+  }
+}
+
+const MOCK_REVIEWS = {
+  'mock_7': { avg: 4.6, total: 312, dist: [5,4,3,2,1], pct: [62,22,10,4,2], reviews: [
+    { name: 'Priya S.', date: 'Jan 2025', stars: 5, text: 'Excellent cardiology team! Dr. Kulkarni was extremely thorough and patient. The facilities are world-class and the nursing staff very attentive.' },
+    { name: 'Rahul M.', date: 'Dec 2024', stars: 4, text: 'Good experience overall. Clean rooms, responsive staff. Waiting time at OPD could be improved but quality of care is top-notch.' },
+    { name: 'Anjali K.', date: 'Nov 2024', stars: 5, text: 'My mother was admitted for a nephrology case. The doctors explained everything clearly. Discharge process was smooth. Highly recommend Ruby Hall.' },
+  ]},
+  'mock_8': { avg: 4.5, total: 278, dist: [5,4,3,2,1], pct: [58,26,10,4,2], reviews: [
+    { name: 'Suresh P.', date: 'Feb 2025', stars: 5, text: 'Sahyadri\'s cancer care unit is outstanding. The oncology team gave my father the best possible treatment with full emotional support.' },
+    { name: 'Meena R.', date: 'Jan 2025', stars: 4, text: 'Very professional staff and well-maintained hospital. Neurology department is excellent. Billing was transparent with no hidden charges.' },
+    { name: 'Vikas D.', date: 'Dec 2024', stars: 5, text: 'Got bone marrow transplant done here. The BMT unit is state-of-the-art. The care and follow-up from the team throughout was remarkable.' },
+  ]},
+  'mock_9': { avg: 4.3, total: 195, dist: [5,4,3,2,1], pct: [48,30,14,5,3], reviews: [
+    { name: 'Kavita N.', date: 'Jan 2025', stars: 4, text: 'Good orthopedic services. My knee surgery went smoothly. Physiotherapy post-surgery was well-structured. Would recommend for joint issues.' },
+    { name: 'Arun T.', date: 'Dec 2024', stars: 5, text: 'Jehangir has been my family\'s go-to hospital for decades. The legacy of trust continues. ICU care during my father\'s emergency was exceptional.' },
+    { name: 'Pooja L.', date: 'Nov 2024', stars: 4, text: 'Gynecology department is well-equipped. Doctors are knowledgeable and caring. The hospital could work on reducing OPD waiting times.' },
+  ]},
+  'mock_10': { avg: 4.8, total: 401, dist: [5,4,3,2,1], pct: [74,18,5,2,1], reviews: [
+    { name: 'Deepa M.', date: 'Feb 2025', stars: 5, text: 'Best hospital in Pune for cardiac care. My husband\'s bypass surgery was performed flawlessly. The ICU nurses were incredible — caring and professional.' },
+    { name: 'Sanjay K.', date: 'Jan 2025', stars: 5, text: 'Liver transplant done successfully here. The multi-disciplinary team coordination was seamless. Dr. Nagral and team gave us our life back. Forever grateful.' },
+    { name: 'Ritu B.', date: 'Dec 2024', stars: 4, text: 'Paediatrics ward is excellent. Doctors are very patient with children. Hospital is clean and spacious. Slightly expensive but worth every rupee.' },
+  ]},
+  'mock_1': { avg: 4.7, total: 1240, dist: [5,4,3,2,1], pct: [68,20,8,3,1], reviews: [
+    { name: 'Nisha G.', date: 'Feb 2025', stars: 5, text: 'Apollo Delhi is a world-class facility. The neurology team handled my father\'s stroke with incredible speed and expertise. He made a full recovery.' },
+    { name: 'Karan J.', date: 'Jan 2025', stars: 5, text: 'Outstanding oncology department. Transparent about treatment options, costs, and prognosis. Felt supported throughout the entire cancer treatment journey.' },
+    { name: 'Shalini V.', date: 'Dec 2024', stars: 4, text: 'Very professional and organized. International patients wing is excellent. Slightly long wait at OPD but the quality of specialists makes it worth it.' },
+  ]},
+  'mock_2': { avg: 4.5, total: 890, dist: [5,4,3,2,1], pct: [57,25,11,5,2], reviews: [
+    { name: 'Amit S.', date: 'Jan 2025', stars: 5, text: 'Robotic knee surgery at Fortis was a game-changer. Recovery was much faster than expected. The orthopedic team is simply the best in the country.' },
+    { name: 'Ravi P.', date: 'Dec 2024', stars: 4, text: 'Great transplant team. My cousin\'s kidney transplant was handled with care and precision. Post-op support and follow-up care has been consistent.' },
+    { name: 'Leena H.', date: 'Nov 2024', stars: 4, text: 'Fortis Gurugram is well-equipped and modern. Staff is courteous. Pharmacy and lab services within the campus are very convenient.' },
+  ]},
+  'mock_3': { avg: 4.2, total: 2100, dist: [5,4,3,2,1], pct: [45,28,16,7,4], reviews: [
+    { name: 'Rohan D.', date: 'Feb 2025', stars: 5, text: 'AIIMS remains unmatched for expertise. Despite being crowded, the quality of doctors is unparalleled. Got a rare diagnosis here after years of struggle.' },
+    { name: 'Geeta R.', date: 'Jan 2025', stars: 4, text: 'As a public hospital, AIIMS delivers exceptional medical care at minimal cost. Waiting can be challenging but the treatment outcome is outstanding.' },
+    { name: 'Manoj T.', date: 'Dec 2024', stars: 3, text: 'Good medical team but the OPD system is very crowded. It took half the day to get a consultation. If you have patience, the care is worth it.' },
+  ]},
+  'mock_4': { avg: 4.6, total: 760, dist: [5,4,3,2,1], pct: [63,22,10,3,2], reviews: [
+    { name: 'Smita C.', date: 'Feb 2025', stars: 5, text: 'Max Saket\'s paediatric cardiac team saved my son\'s life. They are genuinely compassionate and technically brilliant. Forever indebted to them.' },
+    { name: 'Vikram N.', date: 'Jan 2025', stars: 5, text: 'Cancer care at Max is top-tier. The multidisciplinary approach, personalized treatment plan, and emotional support made a tough journey manageable.' },
+    { name: 'Anita R.', date: 'Nov 2024', stars: 4, text: 'Good hospital with excellent infrastructure. The nurses are very helpful. Billing clarity and insurance desk could be a bit more efficient.' },
+  ]},
+  'mock_5': { avg: 4.7, total: 1050, dist: [5,4,3,2,1], pct: [66,21,8,3,2], reviews: [
+    { name: 'Prakash K.', date: 'Feb 2025', stars: 5, text: 'Medanta\'s heart institute is phenomenal. My bypass surgery went perfectly. The cardiologists are world-trained and the ICU care was 24/7 attentive.' },
+    { name: 'Sunita B.', date: 'Jan 2025', stars: 5, text: 'Liver transplant team at Medanta is extraordinary. Everything from pre-op evaluation to post-discharge follow-up was handled with great professionalism.' },
+    { name: 'Harish M.', date: 'Dec 2024', stars: 4, text: 'Superb facilities and talented doctors. The hospital campus is huge and very well-organized. Room service and food quality is also commendable.' },
+  ]},
+};
+
+function starsHtml(n, size='') {
+  const full = Math.floor(n); const half = n % 1 >= 0.5;
+  let h = '';
+  for (let i=0;i<5;i++) {
+    if (i < full) h += '<i class="fas fa-star"></i>';
+    else if (i === full && half) h += '<i class="fas fa-star-half-alt"></i>';
+    else h += '<i class="far fa-star"></i>';
+  }
+  return `<span class="stars" style="${size?'font-size:'+size:''}">${h}</span>`;
+}
+
+const GANGA_RAM_REVIEWS = { avg: 4.6, total: 874, dist: [5,4,3,2,1], pct: [61,23,10,4,2], reviews: [
+    { name: 'Aarav M.', date: 'Feb 2025', stars: 5, text: 'Sir Ganga Ram is truly world-class. My father had a complex cardiac procedure and the team was exceptional — knowledgeable, compassionate, and thorough throughout.' },
+    { name: 'Sunita K.', date: 'Jan 2025', stars: 5, text: 'The neurology department here is outstanding. Got a diagnosis after visiting multiple hospitals with no result. The doctors really listen and explain everything clearly.' },
+    { name: 'Ramesh B.', date: 'Dec 2024', stars: 4, text: 'Very good hospital with experienced specialists. Gastroenterology unit handled my treatment with care. OPD can get busy but the clinical quality is top-notch.' },
+]};
+
+function isGangaRam(name) {
+  if (!name) return false;
+  const n = name.toLowerCase().replace(/[^a-z ]/g, '');
+  return /gang[ar]+\s*ram/.test(n);
+}
+
+function reviewsHtml(hid, hname) {
+  let rd = MOCK_REVIEWS[hid];
+  if (!rd && isGangaRam(hname)) rd = GANGA_RAM_REVIEWS;
+  if (!rd) return '';
+  const bars = rd.dist.map((star, i) => `
+    <div class="rating-bar-row">
+      <span>${star}★</span>
+      <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:${rd.pct[i]}%"></div></div>
+      <span>${rd.pct[i]}%</span>
+    </div>`).join('');
+  const items = rd.reviews.map(r => `
+    <div class="review-item">
+      <div class="review-top">
+        <div class="review-avatar">${r.name.charAt(0)}</div>
+        <div>
+          <div class="review-name">${r.name}</div>
+          <div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
+        </div>
+        <div class="review-date">${r.date}</div>
+      </div>
+      <div class="review-text">${r.text}</div>
+    </div>`).join('');
+  return `
+    <div class="reviews-section">
+      <div class="reviews-summary">
+        <div>
+          <div class="rating-big">${rd.avg}</div>
+          <div>${starsHtml(rd.avg)}</div>
+          <div class="rating-meta">${rd.total.toLocaleString()} reviews</div>
+        </div>
+        <div class="rating-bar-wrap">${bars}</div>
+      </div>
+      <button class="btn-toggle-reviews" data-hid="${hid}"><i class="fas fa-chevron-down"></i> Show reviews</button>
+      <div class="reviews-list" id="rev-${hid}">${items}</div>
+    </div>`;
+}
+
+function renderHospCards(list) {
+  const grid = document.getElementById('p-hosp-grid');
+  const filtered = list
+    .filter(h => !(h.hospitalName || h.name || '').toLowerCase().includes('sunflower'))
+    .filter(h => !(h.hospitalName || h.name || '').toLowerCase().includes('mjm'))
+    .sort((a, b) => {
+      const aCity = (a.hospitalName || a.name || '').toLowerCase().includes('city');
+      const bCity = (b.hospitalName || b.name || '').toLowerCase().includes('city');
+      return aCity - bCity;
+    });
+  if (!filtered.length) { grid.innerHTML = '<div class="card" style="text-align:center"><p>No verified hospitals found.</p></div>'; return; }
+  grid.innerHTML = '';
+  filtered.forEach(h => {
+    const card = document.createElement('div'); card.className = 'hosp-card';
+    card.innerHTML = `
+      <div class="hosp-card-avatar">${(h.hospitalName || 'H').charAt(0)}</div>
+      <div class="hosp-card-body">
+        <div class="hosp-hdr">
+          <strong style="font-size:1.05rem">${h.hospitalName || h.name || 'Hospital'}</strong>
+          <span class="verified-badge"><i class="fas fa-check-circle"></i> Verified</span>
+        </div>
+        <div class="hosp-card-meta">
+          <span class="info-row" style="margin:0"><i class="fas fa-map-marker-alt"></i><span>${h.address || 'N/A'}</span></span>
+          <span class="info-row" style="margin:0"><i class="fas fa-stethoscope"></i><span>${h.specialties || 'N/A'}</span></span>
+          <span class="info-row" style="margin:0"><i class="fas fa-clock"></i><span>${h.hours || 'N/A'}</span></span>
+          ${h.contact ? `<span class="info-row" style="margin:0"><i class="fas fa-phone"></i><span>${h.contact}</span></span>` : ''}
+        </div>
+        ${h.description ? `<p style="color:var(--gray);font-size:.83rem;margin-bottom:0">${h.description}</p>` : ''}
+        ${reviewsHtml(h.id, h.hospitalName || h.name || '')}
+        <div class="hosp-card-actions">
+          <button class="btn btn-primary btn-sm hc-book"><i class="fas fa-calendar-plus"></i> Book</button>
+          <button class="btn btn-outline btn-sm hc-query"><i class="fas fa-comment"></i> Query</button>
+          ${h.contact ? `<a href="tel:${h.contact}" class="btn btn-outline btn-sm"><i class="fas fa-phone"></i> Call</a>` : ''}
+          <button class="btn btn-outline btn-sm hc-location"><i class="fas fa-map-marker-alt"></i> Location</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+    card.querySelector('.hc-book').addEventListener('click', () => { document.getElementById('book-hosp').value = h.id; switchTab('patient', 'p-booking'); });
+    card.querySelector('.hc-query').addEventListener('click', () => { switchTab('patient', 'p-queries'); setTimeout(() => openChat(h.id, h.hospitalName || h.name), 400); });
+    card.querySelector('.hc-location').addEventListener('click', () => openMapModal(h.hospitalName || h.name, h.address || '', h.city || ''));
+    const toggleBtn = card.querySelector('.btn-toggle-reviews');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const list = document.getElementById(`rev-${h.id}`);
+        const isOpen = list.classList.toggle('open');
+        toggleBtn.innerHTML = isOpen
+          ? '<i class="fas fa-chevron-up"></i> Hide reviews'
+          : '<i class="fas fa-chevron-down"></i> Show reviews';
+      });
+    }
+  });
+}
+
+document.getElementById('p-search').addEventListener('input', function() {
+  const t = this.value.toLowerCase();
+  renderHospCards(allHospitals.filter(h =>
+    (h.hospitalName || '').toLowerCase().includes(t) ||
+    (h.address || '').toLowerCase().includes(t) ||
+    (h.specialties || '').toLowerCase().includes(t)
+  ));
+});
+
+function fillHospSelect() {
+  const sel = document.getElementById('book-hosp');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">-- Select Hospital --</option>';
+  allHospitals.forEach(h => { const o = document.createElement('option'); o.value = h.id; o.textContent = h.hospitalName || h.name; sel.appendChild(o); });
+  if (cur) sel.value = cur;
+}
+
+/* PATIENT: BOOKING */
+document.getElementById('btn-my-appts').addEventListener('click', async () => {
+  const panel = document.getElementById('my-appts-panel');
+  panel.classList.toggle('hidden');
+  if (!panel.classList.contains('hidden')) loadMyAppts();
+});
+
+async function loadMyAppts() {
+  const el = document.getElementById('my-appts-list');
+  el.innerHTML = '<p style="color:var(--gray)">Loading...</p>';
+  try {
+    const raw = await getDocs(collection(db, 'appointments'));
+    const snap = sortDesc(raw.docs.filter(d => d.data().patientId === CU.uid));
+    if (!snap.length) { el.innerHTML = '<p style="color:var(--gray)">No appointments yet.</p>'; return; }
+    el.innerHTML = '';
+    snap.forEach(d => {
+      const a = d.data();
+      const div = document.createElement('div'); div.className = 'appt-item';
+      const sc = a.status === 'confirmed' ? 'confirmed' : a.status === 'rejected' ? 'rejected' : a.status === 'completed' ? 'verified' : 'pending';
+      div.innerHTML = `
+        <div><strong>${a.hospitalName || 'Hospital'}</strong>
+        <div style="color:var(--gray);font-size:.85rem">${a.purpose} · ${a.date || ''} at ${a.timeSlot || ''}</div>
+        ${a.notes ? `<div style="color:var(--gray);font-size:.82rem">${a.notes}</div>` : ''}</div>
+        <span class="status ${sc}">${a.status || 'pending'}</span>`;
+      el.appendChild(div);
+    });
+  } catch (e) { el.innerHTML = '<p style="color:var(--danger)">Error loading.</p>'; }
+}
+
+document.getElementById('btn-confirm-book').addEventListener('click', async () => {
+  const hid = document.getElementById('book-hosp').value;
+  const purp = document.getElementById('book-purpose').value;
+  const note = document.getElementById('book-notes').value.trim();
+  if (!hid) { toast('Please select a hospital', 'error'); return; }
+  if (!selSlot) { toast('Please select a time slot', 'error'); return; }
+  const hosp = allHospitals.find(h => h.id === hid);
+  spin(true);
+  try {
+    await addDoc(collection(db, 'appointments'), {
+      hospitalId: hid,
+      hospitalName: hosp?.hospitalName || hosp?.name || 'Hospital',
+      patientId: CU.uid,
+      patientName: UD.name || 'Patient',
+      patientEmail: CU.email,
+      purpose: purp, notes: note,
+      date: selDate.toLocaleDateString(),
+      timeSlot: selSlot,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+    toast('Appointment booked! The hospital will confirm shortly 🎉', 'success');
+    document.getElementById('book-notes').value = ''; selSlot = null;
+    document.querySelectorAll('#p-time-slots .time-slot').forEach(s => s.classList.remove('selected'));
+  } catch (err) { toast('Error booking. Try again.', 'error'); console.error(err); }
+  spin(false);
+});
+
+/* CALENDAR */
+/* =====================================================================
+   HOSPITAL AVAILABILITY CALENDAR
+   ===================================================================== */
+
+// All available time slots per day
+const ALL_TIME_SLOTS = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM'];
+
+// Hospital schedule: which days are open and which slots are available/booked
+// 0=Sun,1=Mon,...,6=Sat
+const HOSP_SCHEDULE = {
+  0: null, // Sunday closed
+  1: { open: true, slots: ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'] },
+  2: { open: true, slots: ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM'] },
+  3: { open: true, slots: ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'] },
+  4: { open: true, slots: ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM'] },
+  5: { open: true, slots: ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM'] },
+  6: { open: true, slots: ['9:00 AM','10:00 AM','11:00 AM','12:00 PM'] }, // Saturday half-day
+};
+
+// Pre-booked slots: key = "YYYY-MM-DD", value = array of booked time strings
+const HOSP_BOOKED = (() => {
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth();
+  const fmt = (yr, mo, d) => `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  return {
+    [fmt(y,m,today.getDate())]:       ['9:00 AM','10:00 AM','11:00 AM','2:00 PM'],
+    [fmt(y,m,today.getDate()+1)]:     ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM'],
+    [fmt(y,m,today.getDate()+2)]:     ['9:00 AM'],
+    [fmt(y,m,today.getDate()+3)]:     ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'],
+    [fmt(y,m,today.getDate()+5)]:     ['10:00 AM','11:00 AM','2:00 PM','3:00 PM'],
+    [fmt(y,m,today.getDate()+7)]:     ['9:00 AM','10:00 AM'],
+    [fmt(y,m,today.getDate()+8)]:     ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM'],
+  };
+})();
+
+// Blocked dates (e.g. holidays)
+const HOSP_BLOCKED = (() => {
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth();
+  const fmt = (yr, mo, d) => `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  return new Set([
+    fmt(y, m, today.getDate()+4),  // holiday
+    fmt(y, m, today.getDate()+11), // holiday
+  ]);
+})();
+
+function getDateKey(yr, mo, d) {
+  return `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function getDayStatus(yr, mo, d) {
+  const dateKey = getDateKey(yr, mo, d);
+  const dayOfWeek = new Date(yr, mo, d).getDay();
+  const schedule = HOSP_SCHEDULE[dayOfWeek];
+  if (!schedule || HOSP_BLOCKED.has(dateKey)) return 'closed';
+  const totalSlots = schedule.slots.length;
+  const booked = (HOSP_BOOKED[dateKey] || []).length;
+  if (booked >= totalSlots) return 'full';
+  if (booked >= Math.ceil(totalSlots * 0.5)) return 'partial';
+  return 'available';
+}
+
+// ── Hospital availability calendar ──
+let hCalDate = new Date();
+let hSelDate = null;
+
+function renderHospCal() {
+  const grid = document.getElementById('h-cal-grid');
+  const mnth = document.getElementById('h-cal-month');
+  if (!grid || !mnth) return;
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const yr = hCalDate.getFullYear(), mo = hCalDate.getMonth();
+  mnth.textContent = `${MONTHS[mo]} ${yr}`;
+  const firstDay = new Date(yr, mo, 1).getDay();
+  const days = new Date(yr, mo + 1, 0).getDate();
+  const today = new Date();
+  grid.innerHTML = '';
+
+  // Day headers
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d => {
+    const el = document.createElement('div');
+    el.textContent = d;
+    el.style.cssText = 'font-weight:700;color:var(--gray);text-align:center;font-size:.72rem;padding:4px 0;';
+    grid.appendChild(el);
+  });
+
+  // Empty leading cells
+  for (let i = 0; i < firstDay; i++) {
+    const e = document.createElement('div'); e.className = 'cal-day empty'; grid.appendChild(e);
+  }
+
+  // Day cells
+  for (let d = 1; d <= days; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    const isToday = (d === today.getDate() && mo === today.getMonth() && yr === today.getFullYear());
+    const isPast = new Date(yr, mo, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const status = getDayStatus(yr, mo, d);
+    const dateKey = getDateKey(yr, mo, d);
+    const isSelected = hSelDate && hSelDate === dateKey;
+
+    if (isSelected) {
+      el.style.cssText = 'background:var(--primary);color:#fff;border-radius:8px;cursor:pointer;position:relative;font-weight:700;';
+    } else if (isPast) {
+      el.style.cssText = 'color:#cbd5e1;cursor:default;border-radius:8px;font-size:.82rem;';
+    } else if (isToday) {
+      el.style.cssText = 'background:var(--primary);color:#fff;border-radius:8px;cursor:pointer;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,.4);';
+    } else if (status === 'available') {
+      el.style.cssText = 'background:#dcfce7;color:#166534;border-radius:8px;cursor:pointer;font-weight:600;border:1px solid #86efac;';
+    } else if (status === 'partial') {
+      el.style.cssText = 'background:#fef9c3;color:#854d0e;border-radius:8px;cursor:pointer;font-weight:600;border:1px solid #fde047;';
+    } else if (status === 'full') {
+      el.style.cssText = 'background:#fee2e2;color:#991b1b;border-radius:8px;cursor:pointer;font-weight:600;border:1px solid #fca5a5;';
+    } else {
+      el.style.cssText = 'background:#f1f5f9;color:#94a3b8;border-radius:8px;cursor:not-allowed;font-size:.82rem;';
+    }
+
+    if (!isPast && status !== 'closed') {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        hSelDate = dateKey;
+        renderHospCal();
+        renderHospSlots(yr, mo, d);
+      });
+    }
+
+    grid.appendChild(el);
+  }
+}
+
+function renderHospSlots(yr, mo, d) {
+  const el = document.getElementById('h-time-slots');
+  const dateLabel = document.getElementById('h-slots-date');
+  const summary = document.getElementById('h-slots-summary');
+  if (!el) return;
+
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dayOfWeek = new Date(yr, mo, d).getDay();
+  const dateKey = getDateKey(yr, mo, d);
+  const schedule = HOSP_SCHEDULE[dayOfWeek];
+  const booked = HOSP_BOOKED[dateKey] || [];
+
+  if (dateLabel) dateLabel.textContent = `${DAYS[dayOfWeek]}, ${d} ${MONTHS_SHORT[mo]} ${yr}`;
+
+  el.innerHTML = '';
+
+  if (!schedule || HOSP_BLOCKED.has(dateKey)) {
+    el.innerHTML = '<div style="color:var(--gray);font-size:.85rem;padding:8px 0;width:100%"><i class="fas fa-moon" style="margin-right:6px"></i>Hospital closed on this day</div>';
+    if (summary) summary.style.display = 'none';
+    return;
+  }
+
+  const slots = schedule.slots;
+  let availCount = 0;
+
+  slots.forEach(s => {
+    const isBooked = booked.includes(s);
+    if (!isBooked) availCount++;
+    const chip = document.createElement('div');
+    chip.style.cssText = `
+      padding:8px 12px;border-radius:20px;font-size:.82rem;font-weight:600;
+      display:inline-flex;align-items:center;gap:6px;
+      ${isBooked
+        ? 'background:#fee2e2;color:#991b1b;cursor:not-allowed;border:1.5px solid #fca5a5;'
+        : 'background:#dcfce7;color:#166534;cursor:pointer;border:1.5px solid #86efac;transition:all .15s;'}
+    `;
+    chip.innerHTML = `<i class="fas fa-${isBooked ? 'times-circle' : 'check-circle'}" style="font-size:.75rem"></i>${s}`;
+    if (!isBooked) {
+      chip.addEventListener('mouseenter', () => { chip.style.background = '#16a34a'; chip.style.color = '#fff'; chip.style.borderColor = '#16a34a'; });
+      chip.addEventListener('mouseleave', () => { chip.style.background = '#dcfce7'; chip.style.color = '#166534'; chip.style.borderColor = '#86efac'; });
+      chip.addEventListener('click', () => {
+        el.querySelectorAll('div[data-sel]').forEach(x => {
+          x.removeAttribute('data-sel');
+          x.style.background = '#dcfce7'; x.style.color = '#166534'; x.style.borderColor = '#86efac';
+        });
+        chip.setAttribute('data-sel', '1');
+        chip.style.background = 'var(--primary)'; chip.style.color = '#fff'; chip.style.borderColor = 'var(--primary)';
+        selSlot = s;
+      });
+    }
+    el.appendChild(chip);
+  });
+
+  if (summary) {
+    const total = slots.length;
+    const pct = Math.round((booked.length / total) * 100);
+    summary.style.display = 'block';
+    summary.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span><strong style="color:var(--success)">${availCount}</strong> available &nbsp;·&nbsp; <strong style="color:var(--danger)">${booked.length}</strong> booked</span>
+        <span style="font-weight:600;color:${pct >= 80 ? 'var(--danger)' : pct >= 50 ? 'var(--warning)' : 'var(--success)'}">${pct}% full</span>
+      </div>
+      <div style="background:var(--gray-light);border-radius:20px;height:6px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${pct >= 80 ? 'var(--danger)' : pct >= 50 ? 'var(--warning)' : 'var(--success)'};border-radius:20px;transition:width .4s"></div>
+      </div>`;
+  }
+}
+
+// ── Patient-side calendar (kept simple) ──
+function renderCal(gridId, monthId, slotsId) {
+  const grid = document.getElementById(gridId);
+  const mnth = document.getElementById(monthId);
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  mnth.textContent = `${MONTHS[selDate.getMonth()]} ${selDate.getFullYear()}`;
+  const yr = selDate.getFullYear(), mo = selDate.getMonth();
+  const firstDay = new Date(yr, mo, 1).getDay();
+  const days = new Date(yr, mo + 1, 0).getDate();
+  const today = new Date();
+  grid.innerHTML = '';
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d => {
+    const el = document.createElement('div'); el.textContent = d;
+    el.style.cssText = 'font-weight:600;color:var(--gray);text-align:center;font-size:.78rem'; grid.appendChild(el);
+  });
+  for (let i = 0; i < firstDay; i++) { const e = document.createElement('div'); e.className = 'cal-day empty'; grid.appendChild(e); }
+  for (let d = 1; d <= days; d++) {
+    const el = document.createElement('div'); el.className = 'cal-day'; el.textContent = d;
+    const isToday = (d === today.getDate() && mo === today.getMonth() && yr === today.getFullYear());
+    if (isToday) el.classList.add('today');
+    el.addEventListener('click', () => {
+      grid.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected'); selDate = new Date(yr, mo, d); renderSlots(slotsId);
+    });
+    grid.appendChild(el);
+  }
+  renderSlots(slotsId);
+}
+function renderSlots(slotsId) {
+  const el = document.getElementById(slotsId); el.innerHTML = '';
+  ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'].forEach(s => {
+    const d = document.createElement('div'); d.className = 'time-slot'; d.textContent = s;
+    d.addEventListener('click', () => { el.querySelectorAll('.time-slot').forEach(x => x.classList.remove('selected')); d.classList.add('selected'); selSlot = s; });
+    el.appendChild(d);
+  });
+}
+
+document.getElementById('h-cal-prev').addEventListener('click', () => { hCalDate.setMonth(hCalDate.getMonth() - 1); renderHospCal(); });
+document.getElementById('h-cal-next').addEventListener('click', () => { hCalDate.setMonth(hCalDate.getMonth() + 1); renderHospCal(); });
+document.getElementById('p-cal-prev').addEventListener('click', () => { selDate.setMonth(selDate.getMonth() - 1); renderCal('p-cal-grid','p-cal-month','p-time-slots'); });
+document.getElementById('p-cal-next').addEventListener('click', () => { selDate.setMonth(selDate.getMonth() + 1); renderCal('p-cal-grid','p-cal-month','p-time-slots'); });
+
+/* PATIENT: CHAT */
+async function loadChatList() {
+  if (!allHospitals.length) await loadHospitals();
+  const el = document.getElementById('p-chat-list'); el.innerHTML = '';
+  const list = allHospitals
+    .filter(h => !(h.hospitalName || h.name || '').toLowerCase().includes('sunflower'))
+    .filter(h => !(h.hospitalName || h.name || '').toLowerCase().includes('mjm'))
+    .sort((a, b) => {
+      const aCity = (a.hospitalName || a.name || '').toLowerCase().includes('city');
+      const bCity = (b.hospitalName || b.name || '').toLowerCase().includes('city');
+      return aCity - bCity;
+    });
+  if (!list.length) { el.innerHTML = '<p style="padding:14px;color:var(--gray)">No hospitals available.</p>'; return; }
+  list.forEach(h => {
+    const item = document.createElement('div'); item.className = 'chat-item'; item.dataset.hid = h.id;
+    item.innerHTML = `<div class="avatar" style="background:var(--primary)">${(h.hospitalName || 'H').charAt(0)}</div><div><strong style="font-size:.9rem">${h.hospitalName || h.name}</strong><div style="font-size:.78rem;color:var(--gray)">${h.specialties || 'Tap to message'}</div></div>`;
+    item.addEventListener('click', () => openChat(h.id, h.hospitalName || h.name));
+    el.appendChild(item);
+  });
+}
+
+const MOCK_REPLIES = [
+  "Thank you for reaching out! Our team will get back to you shortly.",
+  "Hello! Please visit our OPD between 9AM–5PM or call us to book an appointment.",
+  "We have specialists available for your concern. Would you like to book a consultation?",
+  "For emergencies please call our helpline directly. For general queries, our team usually responds within a few hours.",
+  "Thank you for your query. We recommend scheduling an in-person consultation for a proper diagnosis.",
+  "Our doctors are available 24/7 for emergency care. For routine checkups, please book via the Book tab.",
+];
+
+// Pre-populated mock conversations per hospital (shown when first opening a chat)
+const MOCK_CONVERSATIONS = {
+  'mock_7': [ // Ruby Hall Clinic
+    { role: 'hospital', text: '👋 Hello! Welcome to Ruby Hall Clinic. How can we assist you today?', time: '9:02 AM' },
+    { role: 'patient', text: 'Hi, I would like to know about your cardiology department and appointment availability.', time: '9:05 AM' },
+    { role: 'hospital', text: 'Our Cardiology department is one of the best in Pune with a team of 12 senior cardiologists. Appointments are available Monday–Saturday, 10AM–4PM. Would you like to book one?', time: '9:06 AM' },
+    { role: 'patient', text: 'Yes please. Do I need any prior tests before the consultation?', time: '9:08 AM' },
+    { role: 'hospital', text: 'For a first consultation, please bring any previous ECG, echo reports, or blood test results if available. Otherwise, our team will guide you after the initial assessment. Shall I book a slot for you?', time: '9:09 AM' },
+  ],
+  'mock_8': [ // Sahyadri
+    { role: 'hospital', text: '👋 Welcome to Sahyadri Super Speciality Hospital! How may we help you?', time: '10:15 AM' },
+    { role: 'patient', text: 'I need information about bone marrow transplant procedures at your hospital.', time: '10:18 AM' },
+    { role: 'hospital', text: 'Sahyadri has a dedicated BMT unit with state-of-the-art isolation wards and an experienced haematology team. We perform both autologous and allogeneic transplants.', time: '10:19 AM' },
+    { role: 'patient', text: 'What documents would I need to initiate the process?', time: '10:21 AM' },
+    { role: 'hospital', text: 'Please bring: recent CBC reports, bone marrow biopsy (if done), HLA typing report of patient & donor, and a referral letter. Our BMT coordinator can guide you further. Would you like us to schedule an initial consultation?', time: '10:22 AM' },
+  ],
+  'mock_9': [ // Jehangir Hospital
+    { role: 'hospital', text: '👋 Hello! Thank you for contacting Jehangir Hospital. How can we help you today?', time: '11:00 AM' },
+    { role: 'patient', text: 'I have a knee pain issue and want to see an orthopedic specialist.', time: '11:03 AM' },
+    { role: 'hospital', text: 'We have excellent orthopedic surgeons specializing in knee and joint care. Outpatient consultations are available daily from 9AM–6PM.', time: '11:04 AM' },
+    { role: 'patient', text: 'Is there any waiting time? I would like to visit this week.', time: '11:06 AM' },
+    { role: 'hospital', text: 'Walk-ins are welcome, but to minimize waiting we recommend booking an appointment. Slots are available Wednesday and Friday this week. Shall I reserve one for you?', time: '11:07 AM' },
+  ],
+  'mock_10': [ // Deenanath Mangeshkar
+    { role: 'hospital', text: '👋 Welcome to Deenanath Mangeshkar Hospital! We are happy to assist you.', time: '2:30 PM' },
+    { role: 'patient', text: 'Hello, my father needs a liver transplant evaluation. What is the procedure?', time: '2:33 PM' },
+    { role: 'hospital', text: 'Our Liver Transplant Program is fully equipped with a dedicated multi-disciplinary team. The evaluation involves hepatology consult, imaging, liver function tests, and a surgical assessment.', time: '2:34 PM' },
+    { role: 'patient', text: 'How long does the evaluation take and what are the costs involved?', time: '2:36 PM' },
+    { role: 'hospital', text: 'The pre-transplant evaluation typically takes 3–5 days. Our patient services team will provide a detailed cost estimate after the initial consult. Would you like to schedule an appointment with our hepatology team?', time: '2:37 PM' },
+  ],
+  'mock_1': [ // Apollo
+    { role: 'hospital', text: '👋 Hello! Welcome to Apollo Hospitals. How may I assist you today?', time: '3:00 PM' },
+    { role: 'patient', text: 'I need to know about neurological treatment for epilepsy management.', time: '3:02 PM' },
+    { role: 'hospital', text: 'Apollo has a dedicated Neurosciences Centre with experienced neurologists and epileptologists. We offer video EEG monitoring, ketogenic diet therapy, and if required, epilepsy surgery evaluations.', time: '3:03 PM' },
+    { role: 'patient', text: 'Is the neurology OPD available on weekends?', time: '3:05 PM' },
+    { role: 'hospital', text: 'Yes! Our Neurology OPD is available Monday to Saturday, 8AM–6PM. Emergency neurology services are available 24/7. Would you like me to schedule a consultation?', time: '3:06 PM' },
+  ],
+  'mock_2': [ // Fortis
+    { role: 'hospital', text: '👋 Welcome to Fortis Memorial Research Institute! How can we help you?', time: '4:10 PM' },
+    { role: 'patient', text: 'I am looking for a knee replacement surgery. What are the success rates and recovery time?', time: '4:13 PM' },
+    { role: 'hospital', text: 'Our orthopedic team has performed over 5,000 successful knee replacements with a 98% patient satisfaction rate. Recovery typically takes 6–8 weeks with physiotherapy.', time: '4:14 PM' },
+    { role: 'patient', text: 'Do you offer robotic-assisted knee surgery?', time: '4:16 PM' },
+    { role: 'hospital', text: 'Yes! Fortis is equipped with the MAKO Robotic Arm system for precise, minimally invasive knee replacements. It results in faster recovery and better outcomes. Shall we arrange a consultation with our joint replacement specialist?', time: '4:17 PM' },
+  ],
+  'mock_3': [ // AIIMS
+    { role: 'hospital', text: '👋 Hello! This is AIIMS New Delhi patient helpdesk. How can we help you?', time: '9:30 AM' },
+    { role: 'patient', text: 'I need to register as a new patient for a general medicine OPD.', time: '9:34 AM' },
+    { role: 'hospital', text: 'New OPD registrations are done at the Registration Counter, Gate No. 1, Monday to Saturday, 8AM–12PM. Online registration is also available via the AIIMS website.', time: '9:35 AM' },
+    { role: 'patient', text: 'What documents should I carry?', time: '9:37 AM' },
+    { role: 'hospital', text: 'Please carry a valid government ID (Aadhaar/Voter ID), previous medical records if any, and your referral letter if you have one. Registration fees are nominal. Is there anything else you would like to know?', time: '9:38 AM' },
+  ],
+  'mock_4': [ // Max
+    { role: 'hospital', text: '👋 Hello! Welcome to Max Super Speciality Hospital. How may we assist?', time: '11:45 AM' },
+    { role: 'patient', text: 'My child has been diagnosed with a congenital heart defect. I need to know about your pediatric cardiology services.', time: '11:49 AM' },
+    { role: 'hospital', text: 'We deeply empathize with your concern. Max has one of the best Paediatric Cardiac Care units in North India, with experienced paediatric cardiologists and cardiac surgeons.', time: '11:50 AM' },
+    { role: 'patient', text: 'Does your hospital handle complex surgical cases like VSD repair?', time: '11:52 AM' },
+    { role: 'hospital', text: 'Yes, our team regularly performs complex procedures including VSD, ASD closures, TOF repairs, and neonatal cardiac surgeries with excellent outcomes. Would you like to schedule an urgent consultation?', time: '11:53 AM' },
+  ],
+  'gangaram': [ // Sir Ganga Ram Hospital (matched by name)
+    { role: 'hospital', text: '👋 Hello! Welcome to Sir Ganga Ram Hospital. How can we assist you today?', time: '10:05 AM' },
+    { role: 'patient', text: 'Hi, I would like to know more about your Gastroenterology department. I have been having persistent acidity and bloating for about a month.', time: '10:08 AM' },
+    { role: 'hospital', text: 'Hello Priya! Our Gastroenterology department is one of the finest in Delhi, with senior consultants specialising in digestive diseases, endoscopy, and hepatology. Persistent acidity lasting a month definitely needs evaluation.', time: '10:10 AM' },
+    { role: 'patient', text: 'What would the consultation involve? And are there slots available this week?', time: '10:13 AM' },
+    { role: 'hospital', text: 'The initial consultation involves a detailed history, examination, and possibly an upper endoscopy if needed. Slots are available Wednesday and Friday, 10AM–1PM. Would you like us to book one for you?', time: '10:15 AM' },
+  ],
+  'mock_5': [ // Medanta
+    { role: 'hospital', text: '👋 Welcome to Medanta – The Medicity! How can we assist you today?', time: '1:00 PM' },
+    { role: 'patient', text: 'I am interested in the heart bypass surgery. Can you tell me about the procedure and recovery?', time: '1:04 PM' },
+    { role: 'hospital', text: 'Medanta\'s Heart Institute is one of Asia\'s finest, performing over 4,000 cardiac surgeries annually. Bypass surgery (CABG) at Medanta takes 4–6 hours and recovery is typically 4–6 weeks.', time: '1:05 PM' },
+    { role: 'patient', text: 'What is the average waiting time to get a surgery date?', time: '1:07 PM' },
+    { role: 'hospital', text: 'Once all evaluations are complete, surgery can typically be scheduled within 1–2 weeks for elective cases. Emergency cases are prioritized immediately. Shall we arrange an evaluation appointment with our cardiac surgery team?', time: '1:08 PM' },
+  ],
+};
+
+function isMockHospital(hid) { return String(hid).startsWith('mock_'); }
+
+function openChat(hid, hname) {
+  chatHospId = hid;
+  document.querySelectorAll('#p-chat-list .chat-item').forEach(i => i.classList.remove('active'));
+  const activeItem = document.querySelector(`#p-chat-list .chat-item[data-hid="${hid}"]`);
+  if (activeItem) activeItem.classList.add('active');
+  document.getElementById('p-chat-hdr').innerHTML = `<div class="avatar" style="background:var(--primary)">${hname.charAt(0)}</div><div><strong>${hname}</strong><div style="font-size:.82rem;color:var(--gray)">${isMockHospital(hid) ? 'Verified Hospital · Demo' : 'Verified Hospital'}</div></div>`;
+  document.getElementById('p-chat-input').disabled = false;
+  document.getElementById('btn-send-msg').disabled = false;
+  const msgs = document.getElementById('p-chat-msgs');
+  msgs.innerHTML = '';
+
+  const treatAsMock = isMockHospital(hid) || isGangaRam(hname);
+  const mockKey = isGangaRam(hname) ? 'gangaram' : hid;
+
+  if (treatAsMock) {
+    // Mock/named hospital — show pre-populated + session chat
+    if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+    const key = `chat_${CU.uid}_${hid}`;
+    const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
+    if (stored) {
+      // Already chatted — show full history
+      stored.forEach(m => appendMsg(msgs, m.text, m.role === 'patient', m.time));
+    } else {
+      // First open — show pre-populated mock conversation
+      const preMsgs = MOCK_CONVERSATIONS[mockKey] || [
+        { role: 'hospital', text: '👋 Hello! Welcome. How can we help you today?', time: '9:00 AM' }
+      ];
+      preMsgs.forEach(m => appendMsg(msgs, m.text, m.role === 'patient', m.time));
+      sessionStorage.setItem(key, JSON.stringify(preMsgs));
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+  } else {
+    // Real hospital — Firestore real-time
+    if (chatUnsub) chatUnsub();
+    const chatId = [CU.uid, hid].sort().join('_');
+    chatUnsub = onSnapshot(collection(db, 'chats', chatId, 'messages'), snap => {
+      const sorted = sortAsc(snap.docs);
+      msgs.innerHTML = '';
+      sorted.forEach(d => {
+        const m = d.data();
+        appendMsg(msgs, m.text, m.senderId === CU.uid, m.createdAt?.toDate?.().toLocaleTimeString() || 'Just now');
+      });
+      msgs.scrollTop = msgs.scrollHeight;
+    });
+  }
+}
+
+function appendMsg(container, text, isSent, time) {
+  const div = document.createElement('div');
+  div.className = `msg ${isSent ? 'sent' : 'recv'}`;
+  div.innerHTML = `<div>${text}</div><div class="msg-time">${time || new Date().toLocaleTimeString()}</div>`;
+  container.appendChild(div);
+}
+
+async function sendMsg() {
+  const input = document.getElementById('p-chat-input');
+  const text = input.value.trim();
+  if (!text || !chatHospId) return;
+  input.value = '';
+  const msgs = document.getElementById('p-chat-msgs');
+  const now = new Date().toLocaleTimeString();
+
+  if (isMockHospital(chatHospId)) {
+    // Append patient message locally
+    appendMsg(msgs, text, true, now);
+    msgs.scrollTop = msgs.scrollHeight;
+    // Save to sessionStorage
+    const key = `chat_${CU.uid}_${chatHospId}`;
+    const stored = JSON.parse(sessionStorage.getItem(key) || '[]');
+    stored.push({ text, role: 'patient', time: now });
+    // Simulate hospital reply after 1.2s
+    input.disabled = true;
+    setTimeout(() => {
+      const reply = MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
+      const replyTime = new Date().toLocaleTimeString();
+      appendMsg(msgs, reply, false, replyTime);
+      msgs.scrollTop = msgs.scrollHeight;
+      stored.push({ text: reply, role: 'hospital', time: replyTime });
+      sessionStorage.setItem(key, JSON.stringify(stored));
+      input.disabled = false;
+      input.focus();
+    }, 1200);
+  } else {
+    // Real hospital — write to Firestore
+    input.disabled = true;
+    const chatId = [CU.uid, chatHospId].sort().join('_');
+    try {
+      await addDoc(collection(db, 'chats', chatId, 'messages'), {
+        text, senderId: CU.uid, senderName: UD.name || 'Patient',
+        senderRole: 'patient', createdAt: serverTimestamp()
+      });
+    } catch (e) { toast('Error sending message', 'error'); console.error(e); }
+    input.disabled = false; input.focus();
+  }
+}
+document.getElementById('btn-send-msg').addEventListener('click', sendMsg);
+document.getElementById('p-chat-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendMsg(); });
+
+/* PATIENT: PROFILE */
+function prefillPatProfile() {
+  if (!UD) return;
+  document.getElementById('pp-name').value = UD.name || '';
+  document.getElementById('pp-email').value = CU.email || '';
+  document.getElementById('pp-phone').value = UD.phone || '';
+  document.getElementById('pp-dob').value = UD.dob || '';
+  document.getElementById('pp-blood').value = UD.blood || 'O+';
+  document.getElementById('pp-addr').value = UD.address || '';
+}
+document.getElementById('form-pprofile').addEventListener('submit', async e => {
+  e.preventDefault(); spin(true);
+  try {
+    const u = { name: document.getElementById('pp-name').value.trim(), phone: document.getElementById('pp-phone').value.trim(), dob: document.getElementById('pp-dob').value, blood: document.getElementById('pp-blood').value, address: document.getElementById('pp-addr').value.trim() };
+    await updateDoc(doc(db, 'users', CU.uid), u);
+    UD = { ...UD, ...u }; updateHeader(); toast('Profile saved ✅', 'success');
+  } catch (err) { toast('Error saving', 'error'); }
+  spin(false);
+});
+
+/* =====================================================================
+   MEDICINE BOOKING — orders go to selected hospital
+   ===================================================================== */
+let medStep = 'idle', medPayment = null, medHospId = null, medHospName = null, medMedicines = null;
+
+function medAddBot(html) {
+  const area = document.getElementById('med-msgs');
+  setTimeout(() => { area.innerHTML += `<div class="med-bubble">${html}</div><div class="med-meta">MedBot · just now</div>`; area.scrollTop = area.scrollHeight; }, 300);
+}
+function medAddUser(text) {
+  const area = document.getElementById('med-msgs');
+  area.innerHTML += `<div class="med-bubble user">${text}</div><div class="med-meta user">You · just now</div>`;
+  area.scrollTop = area.scrollHeight;
+}
+function medReset() {
+  document.getElementById('med-msgs').innerHTML = '<div class="med-bubble">👋 Click <strong>+</strong> to upload a prescription, or type medicine names directly.</div><div class="med-meta">MedBot · just now</div>';
+  medStep = 'idle'; medPayment = null; medHospId = null; medHospName = null; medMedicines = null;
+  const area = document.getElementById('med-msgs');
+  if (area._hospHandler) { area.removeEventListener('click', area._hospHandler); area._hospHandler = null; }
+  if (area._payHandler)  { area.removeEventListener('click', area._payHandler);  area._payHandler = null; }
+  if (area._addrHandler) { area.removeEventListener('click', area._addrHandler); area._addrHandler = null; }
+}
+
+function buildHospSelectHTML() {
+  if (!allHospitals.length) return '<p style="color:#617e99;margin-top:8px">No hospitals available. Please visit the Hospitals tab first.</p>';
+  let opts = allHospitals.map(h => `<option value="${h.id}">${h.hospitalName || h.name}</option>`).join('');
+  return `<div class="hosp-sel-area" style="margin-top:10px">
+    <p style="margin-bottom:8px;font-weight:500">🏥 Select Hospital/Pharmacy to deliver from:</p>
+    <select id="med-hosp-sel"><option value="">-- Choose Hospital --</option>${opts}</select>
+    <button class="addr-submit" id="med-hosp-confirm">Confirm Hospital ✅</button>
+  </div>`;
+}
+
+function medHandleUpload(file, src) {
+  if (!file) return;
+  if (medStep !== 'idle') { medAddBot('Please reset the current order first.'); return; }
+  medAddUser(`📎 Uploaded from ${src}: ${file.name}`);
+  medMedicines = file.name;
+  medAddBot('🔍 Scanning prescription...');
+  setTimeout(() => {
+    medAddBot(`<div class="rx-preview"><div class="rx-icon">📋</div><div><strong>✅ Scanned</strong><br><small>Amoxicillin 500mg · Paracetamol 650mg · Vitamin D3</small></div></div>${buildHospSelectHTML()}`);
+    medStep = 'hospital'; setTimeout(attachHospListener, 100);
+  }, 900);
+}
+
+function medHandleText(text) {
+  if (medStep !== 'idle') { medAddUser(text); medAddBot('Reset order first to start a new one.'); return; }
+  medAddUser(text); medMedicines = text;
+  medAddBot(`📝 Processing: <em>${text}</em>`);
+  setTimeout(() => {
+    medAddBot(`<div class="rx-preview"><div class="rx-icon">📝</div><div><strong>✅ Noted</strong><br><small>${text.substring(0, 40)}${text.length > 40 ? '…' : ''}</small></div></div>${buildHospSelectHTML()}`);
+    medStep = 'hospital'; setTimeout(attachHospListener, 100);
+  }, 700);
+}
+
+function attachHospListener() {
+  const area = document.getElementById('med-msgs');
+  if (area._hospHandler) area.removeEventListener('click', area._hospHandler);
+  area._hospHandler = function(e) {
+    const btn = e.target.closest('#med-hosp-confirm');
+    if (!btn) return;
+    if (medStep !== 'hospital') return;
+    const sel = document.getElementById('med-hosp-sel');
+    if (!sel || !sel.value) { toast('Please select a hospital', 'error'); return; }
+    medHospId = sel.value;
+    medHospName = allHospitals.find(h => h.id === sel.value)?.hospitalName || allHospitals.find(h => h.id === sel.value)?.name || 'Hospital';
+    area.removeEventListener('click', area._hospHandler);
+    medAddUser(`🏥 ${medHospName}`);
+    medStep = 'payment';
+    medAddBot(`<p style="font-weight:500;margin-bottom:6px">Choose payment method:</p>
+      <div class="pay-btns"><button class="pay-btn" id="pay-online">💳 Online</button><button class="pay-btn" id="pay-cod">💵 Cash on Delivery</button></div>`);
+    setTimeout(attachPayListeners, 100);
+  };
+  area.addEventListener('click', area._hospHandler);
+}
+
+function attachPayListeners() {
+  const area = document.getElementById('med-msgs');
+  if (area._payHandler) area.removeEventListener('click', area._payHandler);
+  area._payHandler = function(e) {
+    const btn = e.target.closest('#pay-online, #pay-cod');
+    if (!btn) return;
+    if (medStep !== 'payment') return;
+    area.removeEventListener('click', area._payHandler);
+    selectPay(btn.id === 'pay-online' ? 'online' : 'cod');
+  };
+  area.addEventListener('click', area._payHandler);
+}
+
+function selectPay(method) {
+  medPayment = method;
+  medAddUser(method === 'online' ? '💳 Online payment' : '💵 Cash on Delivery');
+  medStep = 'address';
+  medAddBot(`<div>${method === 'online' ? '💳 Transfer ₹349 to <strong>medstore@okhdfcbank</strong> (demo)<br>' : '✅ Cash on delivery selected.<br>'}Enter delivery address:</div>
+    <div class="addr-area"><textarea id="med-addr" class="addr-field" rows="3" placeholder="House no, street, city, pincode..."></textarea><button class="addr-submit" id="med-addr-btn">✅ Place Order</button></div>`);
+  const area = document.getElementById('med-msgs');
+  if (area._addrHandler) area.removeEventListener('click', area._addrHandler);
+  area._addrHandler = function(e) {
+    const btn = e.target.closest('#med-addr-btn');
+    if (!btn) return;
+    if (medStep !== 'address') return;
+    const addr = document.getElementById('med-addr')?.value.trim();
+    if (!addr) { toast('Enter delivery address', 'error'); return; }
+    area.removeEventListener('click', area._addrHandler);
+    placeOrder(addr);
+  };
+  area.addEventListener('click', area._addrHandler);
+}
+
+async function placeOrder(address) {
+  if (medStep !== 'address') return;
+  medAddUser(`📍 ${address}`);
+  medStep = 'placing'; // prevent double-submit
+  spin(true);
+  try {
+    await addDoc(collection(db, 'medicine_orders'), {
+      patientId: CU.uid,
+      patientName: UD.name || 'Patient',
+      patientEmail: CU.email || '',
+      hospitalId: medHospId,
+      hospitalName: medHospName,
+      medicines: medMedicines || 'See prescription',
+      address,
+      payment: medPayment,
+      status: 'placed',
+      createdAt: serverTimestamp()
+    });
+    medAddBot(`🎉 <strong>Order Placed!</strong><br><br>🏥 Hospital: <strong>${medHospName}</strong><br>📦 Delivering to: <span style="background:#eaf3fc;padding:3px 10px;border-radius:10px">${address}</span><br>💰 Payment: ${medPayment === 'online' ? 'Online' : 'Cash on Delivery'}<br>🚚 Estimated delivery: 2–3 hours.<br><br>🙏 Thank you!`);
+    medStep = 'done';
+  } catch (e) { toast('Error placing order. Please try again.', 'error'); medStep = 'address'; console.error(e); }
+  spin(false);
+}
+
+/* Med menu */
+document.getElementById('med-plus').addEventListener('click', e => { e.stopPropagation(); document.getElementById('med-menu').classList.toggle('open'); });
+document.addEventListener('click', () => document.getElementById('med-menu').classList.remove('open'));
+document.getElementById('med-camera').addEventListener('click', () => { document.getElementById('med-menu').classList.remove('open'); document.getElementById('inp-camera').click(); });
+document.getElementById('med-photos').addEventListener('click', () => { document.getElementById('med-menu').classList.remove('open'); document.getElementById('inp-photos').click(); });
+document.getElementById('med-files').addEventListener('click', () => { document.getElementById('med-menu').classList.remove('open'); document.getElementById('inp-files').click(); });
+document.getElementById('inp-camera').addEventListener('change', function() { if (this.files[0]) medHandleUpload(this.files[0], 'camera'); this.value = ''; });
+document.getElementById('inp-photos').addEventListener('change', function() { if (this.files[0]) medHandleUpload(this.files[0], 'photos'); this.value = ''; });
+document.getElementById('inp-files').addEventListener('change', function() { if (this.files[0]) medHandleUpload(this.files[0], 'files'); this.value = ''; });
+document.getElementById('med-send').addEventListener('click', () => { const t = document.getElementById('med-text').value.trim(); if (t) { medHandleText(t); document.getElementById('med-text').value = ''; } });
+document.getElementById('med-text').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('med-send').click(); });
+document.getElementById('btn-med-reset').addEventListener('click', medReset);
+
+
+showPage('page-landing');
+
+// Feature tab toggle on landing page
+window.switchFeatureTab = function switchFeatureTab(tab) {
+  const isPatient = tab === 'patient';
+  document.getElementById('feat-patient').style.display = isPatient ? 'grid' : 'none';
+  document.getElementById('feat-hospital').style.display = isPatient ? 'none' : 'grid';
+  const pBtn = document.getElementById('feat-tab-patient');
+  const hBtn = document.getElementById('feat-tab-hospital');
+  pBtn.style.background = isPatient ? 'var(--primary)' : 'transparent';
+  pBtn.style.color = isPatient ? '#fff' : 'var(--gray)';
+  hBtn.style.background = isPatient ? 'transparent' : 'var(--secondary)';
+  hBtn.style.color = isPatient ? 'var(--gray)' : '#fff';
+}
+
+// Landing page button wiring
+document.getElementById('land-login-btn').addEventListener('click', () => { showPage('page-auth'); document.getElementById('tab-login').click(); });
+document.getElementById('land-signup-btn').addEventListener('click', () => { showPage('page-auth'); document.getElementById('tab-signup').click(); });
+document.getElementById('btn-back-landing').addEventListener('click', () => showPage('page-landing'));
+document.getElementById('land-hero-getstarted').addEventListener('click', () => { showPage('page-auth'); document.getElementById('tab-signup').click(); });
+document.getElementById('land-hero-login').addEventListener('click', () => { showPage('page-auth'); document.getElementById('tab-login').click(); });
+document.getElementById('land-cta-patient').addEventListener('click', () => { showPage('page-auth'); document.getElementById('tab-signup').click(); });
+document.getElementById('land-cta-hospital').addEventListener('click', () => { showPage('page-auth'); document.getElementById('tab-signup').click(); });
+
+// Sticky nav scroll effect on landing page
+window.addEventListener('scroll', () => {
+  const hdr = document.getElementById('land-header');
+  if (hdr) hdr.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+/* MAP MODAL */
+window.openMapModal = function openMapModal(name, address, city) {
+  const query = encodeURIComponent(name + ' ' + address);
+  document.getElementById('map-modal-name').textContent = name;
+  document.getElementById('map-modal-addr').textContent = address;
+  document.getElementById('map-modal-link').href = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  document.getElementById('map-modal-directions').href = `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+  document.getElementById('map-modal-iframe').src = `https://maps.google.com/maps?q=${query}&output=embed&z=15`;
+  const modal = document.getElementById('map-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+window.closeMapModal = function closeMapModal() {
+  const modal = document.getElementById('map-modal');
+  modal.style.display = 'none';
+  document.getElementById('map-modal-iframe').src = '';
+  document.body.style.overflow = '';
+}
+
+// Wire up map modal controls after DOM is ready
+document.getElementById('map-back-btn').onclick = function(e) {
+  e.stopPropagation();
+  e.preventDefault();
+  closeMapModal();
+};
+document.getElementById('map-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeMapModal();
+});
+document.getElementById('map-modal-sheet').addEventListener('click', function(e) {
+  e.stopPropagation();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeMapModal();
+});
+
+/* ══════════════════════════════════════════
+   PHONE OTP VERIFICATION — MODAL
+══════════════════════════════════════════ */
+let _generatedOTP = '';
+let _resendInterval = null;
+
+window.openPhoneVerifyModal = function() {
+  const modal = document.getElementById('phone-verify-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('otp-phone-input').focus(), 100);
+}
+
+window.closePhoneVerifyModal = function() {
+  document.getElementById('phone-verify-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.getElementById('phone-verify-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePhoneVerifyModal();
+});
+
+window.sendOTP = function() {
+  const phone = document.getElementById('otp-phone-input').value.trim();
+  const errEl = document.getElementById('otp-send-error');
+  const errSpan = errEl.querySelector('span');
+  errEl.style.display = 'none';
+
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    errSpan.textContent = 'Please enter a valid 10-digit Indian mobile number.';
+    errEl.style.display = 'flex';
+    document.getElementById('modal-phone-wrap').style.borderColor = 'var(--danger)';
+    setTimeout(() => document.getElementById('modal-phone-wrap').style.borderColor = 'var(--gray-light)', 1500);
+    return;
+  }
+
+  _generatedOTP = String(Math.floor(100000 + Math.random() * 900000));
+  document.getElementById('otp-sent-to').textContent = '+91 ' + phone.replace(/(\d{5})(\d{5})/, '$1 $2');
+  document.getElementById('demo-otp-display').textContent = _generatedOTP;
+
+  document.getElementById('modal-step-phone').style.display = 'none';
+  document.getElementById('modal-step-otp').style.display = 'block';
+
+  const hi = document.getElementById('otp-hidden-input');
+  hi.value = '';
+  syncOTPBoxes('');
+  startResendTimer(30);
+  setTimeout(() => hi.focus(), 80);
+  toast('OTP sent!', 'success');
+}
+
+window.syncOTPBoxes = function(val) {
+  const digits = val.replace(/\D/g, '').slice(0, 6);
+  document.getElementById('otp-hidden-input').value = digits;
+  for (let i = 0; i < 6; i++) {
+    const box = document.getElementById('vbox-' + i);
+    box.classList.remove('filled', 'active', 'error', 'dot');
+    if (digits[i]) {
+      box.textContent = digits[i];
+      box.classList.add('filled');
+    } else {
+      box.textContent = '·';
+      box.classList.add('dot');
+      if (i === digits.length) box.classList.add('active');
+    }
+  }
+  document.getElementById('otp-verify-error').style.display = 'none';
+}
+
+window.otpKeyDown = function(e) {
+  if (e.key === 'Enter') verifyOTP();
+}
+
+window.verifyOTP = function() {
+  const entered = document.getElementById('otp-hidden-input').value;
+  const errEl = document.getElementById('otp-verify-error');
+  const errSpan = errEl.querySelector('span');
+
+  const shake = () => {
+    const wrap = document.getElementById('otp-boxes-wrap');
+    wrap.style.animation = 'otpShake .4s ease';
+    setTimeout(() => wrap.style.animation = '', 450);
+  };
+
+  if (entered.length < 6) {
+    errSpan.textContent = 'Please enter all 6 digits.';
+    errEl.style.display = 'flex';
+    shake();
+    return;
+  }
+
+  if (entered !== _generatedOTP) {
+    errSpan.textContent = 'Incorrect OTP. Please try again.';
+    errEl.style.display = 'flex';
+    for (let i = 0; i < 6; i++) {
+      const box = document.getElementById('vbox-' + i);
+      box.classList.remove('filled', 'active', 'dot');
+      box.classList.add('error');
+    }
+    shake();
+    setTimeout(() => {
+      document.getElementById('otp-hidden-input').value = '';
+      syncOTPBoxes('');
+      document.getElementById('otp-hidden-input').focus();
+    }, 700);
+    return;
+  }
+
+  errEl.style.display = 'none';
+  const phoneRaw = document.getElementById('otp-phone-input').value;
+  document.getElementById('otp-verified-number').textContent = '+91 ' + phoneRaw.replace(/(\d{5})(\d{5})/, '$1 $2');
+  document.getElementById('modal-step-otp').style.display = 'none';
+  document.getElementById('modal-step-success').style.display = 'block';
+  document.getElementById('phone-verified-badge-inline').style.display = 'inline-flex';
+  document.getElementById('phone-unverified-badge-inline').style.display = 'none';
+
+  if (_resendInterval) clearInterval(_resendInterval);
+  toast('Phone number verified! ✅', 'success');
+}
+
+window.resendOTP = function() {
+  _generatedOTP = String(Math.floor(100000 + Math.random() * 900000));
+  document.getElementById('demo-otp-display').textContent = _generatedOTP;
+  document.getElementById('otp-hidden-input').value = '';
+  syncOTPBoxes('');
+  document.getElementById('otp-verify-error').style.display = 'none';
+  document.getElementById('otp-hidden-input').focus();
+  startResendTimer(30);
+  toast('OTP resent!', 'success');
+}
+
+window.resetOTPFlow = function() {
+  if (_resendInterval) clearInterval(_resendInterval);
+  document.getElementById('modal-step-phone').style.display = 'block';
+  document.getElementById('modal-step-otp').style.display = 'none';
+  document.getElementById('modal-step-success').style.display = 'none';
+  document.getElementById('otp-send-error').style.display = 'none';
+  document.getElementById('otp-phone-input').value = '';
+  _generatedOTP = '';
+  setTimeout(() => document.getElementById('otp-phone-input').focus(), 80);
+}
+
+function startResendTimer(seconds) {
+  const btn = document.getElementById('btn-resend-otp');
+  const timerEl = document.getElementById('resend-timer');
+  btn.disabled = true;
+  if (_resendInterval) clearInterval(_resendInterval);
+  let remaining = seconds;
+  timerEl.textContent = `(${remaining}s)`;
+  _resendInterval = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(_resendInterval);
+      timerEl.textContent = '';
+      btn.disabled = false;
+    } else {
+      timerEl.textContent = `(${remaining}s)`;
+    }
+  }, 1000);
+}
+
+document.getElementById('otp-boxes-wrap').addEventListener('click', () => {
+  document.getElementById('otp-hidden-input').focus();
+});
+</script>
+<style>
+@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes otpShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes modalPop { from{opacity:0;transform:scale(.94) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.otp-vbox {
+  width: 48px; height: 54px;
+  border: 2px solid var(--gray-light);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 700; color: var(--dark);
+  background: #fff;
+  transition: border-color .15s, background .15s, transform .1s;
+  user-select: none;
+}
+.otp-vbox.filled { 
+  border-color: var(--primary); 
+  background: #eff6ff; 
+  color: var(--primary); 
+  transform: scale(1.04); 
+}
+.otp-vbox.active { 
+  border-color: var(--primary); 
+  box-shadow: 0 0 0 3px rgba(37,99,235,.15); 
+}
+.otp-vbox.error { 
+  border-color: var(--danger); 
+  background: #fff1f2; 
+  color: var(--danger); 
+}
+.otp-vbox.dot { 
+  color: #cbd5e1; 
+  font-size: 1.1rem; 
+  }
+</style>
+</body>
+</html>
